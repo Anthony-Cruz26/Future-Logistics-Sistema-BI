@@ -111,10 +111,10 @@ Ejecutar database/FUTURE_LOGISTIC.sql
 Verificar la creación de tablas
 
 # 4. Ejecutar el sistema
-# Ejecutar una sola vez
+Ejecutar una sola vez
 python src/robot/INICIAR.py --once
 
-# Ejecutar en bucle continuo (cada 2 horas)
+Ejecutar en bucle continuo (cada 2 horas)
 python src/robot/INICIAR.py
 
 # 📁 Estructura del Proyecto
