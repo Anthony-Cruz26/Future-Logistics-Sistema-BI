@@ -8,7 +8,7 @@
 
 # 📋 Descripción del Proyecto
 
-Sistema automatizado de **Inteligencia de Negocios** para **FutureLogistic S.A.**, empresa de logística y distribución de azúcar en Ecuador.
+Sistema automatizado de **Inteligencia de Negocios** para **Future Logistics S.A.**, empresa de logística y distribución de azúcar en Ecuador.
 
 El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistema de Almacenamiento y Transporte) hacia un **Data Warehouse en SQL Server** con modelo estrella, para posteriormente visualizar KPIs logísticos en **Power BI**.
 
@@ -96,8 +96,8 @@ El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistem
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/FutureLogistic-Sistema-BI.git
-cd FutureLogistic-Sistema-BI
+git clone https://github.com/tu-usuario/Future Logistics-Sistema-BI.git
+cd Future Logistics-Sistema-BI
 ```
 
 # 2. Instalar dependencias
@@ -119,7 +119,7 @@ python src/robot/INICIAR.py
 
 # 📁 Estructura del Proyecto
 
-FutureLogistic-Sistema-BI/
+Future Logistics-Sistema-BI/
 │
 ├── README.md                 # Este archivo
 ├── LICENSE                   # Licencia MIT
