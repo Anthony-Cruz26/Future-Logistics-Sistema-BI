@@ -52,7 +52,7 @@ El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistem
 
 # 📊 Modelo de Datos
 
-# Modelo Estrella
+Modelo Estrella
 ┌─────────────────────┐
 │ DIM_FECHA │
 │ (Calendario) │
@@ -81,7 +81,7 @@ El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistem
 └─────────────────┘
 
 
-### Tablas Principales
+Tablas Principales
 
 | Tabla | PK | Propósito |
 |-------|-----|-----------|
@@ -91,9 +91,9 @@ El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistem
 
 ---
 
-## 🚀 Instalación Rápida
+# 🚀 Instalación Rápida
 
-### 1. Clonar el repositorio
+# 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/tu-usuario/Future Logistics-Sistema-BI.git
