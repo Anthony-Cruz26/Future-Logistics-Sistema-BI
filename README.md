@@ -44,7 +44,7 @@ El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistem
 
 | Componente | Tecnología | Propósito |
 |------------|------------|-----------|
-| **Simulador SAP** | HTML, CSS, JavaScript, XLSX | Genera datos históricos realistas |
+| **Simulador SAP** | HTML, CSS, JavaScript, XLSX | Genera los datos históricos |
 | **Robot Automatizador** | Python + Selenium | Navega, extrae y descarga archivos |
 | **ETL** | Python + Pandas + PyODBC | Transforma y carga datos en SQL Server |
 | **Data Warehouse** | SQL Server (Modelo Estrella) | Almacena datos históricos |
@@ -110,4 +110,81 @@ Ejecutar database/FUTURE_LOGISTIC.sql
 
 Verificar la creación de tablas
 
+# 4. Ejecutar el sistema
+# Ejecutar una sola vez
+python src/robot/INICIAR.py --once
+
+# Ejecutar en bucle continuo (cada 2 horas)
+python src/robot/INICIAR.py
+
+# 📁 Estructura del Proyecto
+
+FutureLogistic-Sistema-BI/
+│
+├── README.md                 # Este archivo
+├── LICENSE                   # Licencia MIT
+├── requirements.txt          # Dependencias Python
+├── .gitignore               # Archivos ignorados por Git
+│
+├── docs/                    # Documentación
+│   ├── arquitectura.md      # Detalle técnico de la arquitectura
+│   ├── guia_instalacion.md  # Guía paso a paso de instalación
+│   └── guia_usuario.md      # Manual de usuario
+│
+├── src/                     # Código fuente
+│   ├── simulador/           # Simulador SAP (HTML/JS)
+│   │   └── SIMULACIÓN_SAP.html
+│   │
+│   ├── robot/               # Robot automatizador
+│   │   └── INICIAR.py
+│   │
+│   └── etl/                 # Procesos ETL
+│       ├── PROCESO_ETL_TRANSPORTE.py
+│       ├── PROCESO_ETL_DESPACHO.py
+│       └── PROCESO_ETL_DEVOLUCION.py
+│
+├── database/                # Scripts de base de datos
+│   └── FUTURE_LOGISTIC.sql
+│
+└── reportes/                # Archivos generados
+    ├── REPORTES/            # Archivos Excel descargados
+    └── PROCESADOS/          # Archivos ya procesados por ETL
+
+# 📊 KPIs Implementados
+
+# Transporte
+
+📦 Kilos Recibidos: Total de kilos que ingresan a bodegas
+
+🎫 Total OT's: Número de órdenes de transporte
+
+⚖️ Kilos por OT: Promedio de kilos por orden
+
+🏭 Bodegas Activas: Número de bodegas con movimiento
+
+# Despachos
+
+🚛 Kilos Despachados: Total de kilos enviados a clientes
+
+👥 Clientes Atendidos: Número de clientes únicos
+
+📊 Promedio por Despacho: Kilos promedio por despacho
+
+🗺️ Provincias Atendidas: Cobertura geográfica
+
+# Devoluciones
+
+🔄 Kilos Devueltos: Total de kilos devueltos
+
+📈 % Devolución: Porcentaje sobre despachos
+
+📋 Motivos: Distribución de causas
+
+⏱️ Tiempo de Procesamiento: Días hasta procesar
+
+
+# 👥 Autores
+Autor	        Rol
+Anthony Cruz	Desarrollador Backend / ETL
+Yexica Angulo	Desarrollador Frontend / BI
 
