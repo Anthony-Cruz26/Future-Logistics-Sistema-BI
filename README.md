@@ -1,7 +1,7 @@
 # 🚛 FutureLogistic S.A. - Sistema de Inteligencia de Negocios
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-2017-red)](https://www.microsoft.com/es-es/sql-server/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-red)](https://www.microsoft.com/es-es/sql-server/)
 [![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-yellow)](https://powerbi.microsoft.com/)
 [![Selenium](https://img.shields.io/badge/Selenium-4.0-green)](https://www.selenium.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
