@@ -1,0 +1,52 @@
+# ============================================================
+# ARCHIVOS IGNORADOS POR GIT
+# ============================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+env/
+.venv/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs y screenshots
+*.log
+*.screenshot.png
+error_*.png
+
+# Reportes generados
+reportes/
+REPORTES/
+PROCESADOS/
+
+# Archivos de datos
+*.xlsx
+*.xls
+*.csv
+*.tmp
+*.crdownload
+
+# Base de datos local
+*.mdf
+*.ldf
+
+# Power BI
+*.pbix
+*.pbit
+
+# Configuración local
+config_local.py
