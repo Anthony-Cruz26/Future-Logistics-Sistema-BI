@@ -128,9 +128,5 @@ DIM_PROVINCIA (ID_PROVINCIA) ←→ HECHOS_DEVOLUCIONES (ID_PROVINCIA)
 
 Seguridad y Auditoría
 AUDITORIA_ETL: Registra cada ejecución de ETL
-
 Logs en consola: Seguimiento en tiempo real
-
-Screenshots: Capturas en caso de error
-
 Validaciones: Verificación de integridad de datos
