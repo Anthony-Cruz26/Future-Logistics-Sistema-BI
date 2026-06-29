@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SAP Logon 760 — Future Logistics S.A.</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sap-blue: #0070f2;
+            --sap-dark: #1d2d3e;
+            --sap-gray: #f5f6f7;
+            --sap-border: #d9dbdd;
+            --sap-text: #32363a;
+            --sap-subtle: #6a6d70;
+            --sap-success: #107e3e;
+            --sap-warning: #e9730c;
+            --sap-danger: #de350b;
+            --sap-sidebar: #243040;
+            --sap-header: #1b3a5c;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --r-sm: 4px;
+            --r-md: 6px;
+            --r-lg: 10px;
+            --shadow-xl: 0 24px 64px rgba(0,0,0,.28);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-sans); background: var(--sap-gray); color: var(--sap-text); font-size: 13px; height: 100vh; overflow: hidden; }
+        .screen { display: none; width: 100vw; height: 100vh; flex-direction: column; }
+        .screen.active { display: flex; }
+        #s-logon { flex-direction: row; }
+        .lg-left { width: 268px; background: var(--sap-sidebar); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,.05); }
+        .lg-left-hdr { background: var(--sap-header); padding: 11px 16px; }
+        .lg-left-hdr .brand { font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: white; }
+        .lg-tree-lbl { padding: 12px 16px 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; color: rgba(255,255,255,.3); }
+        .lg-tree { padding: 3px 8px; flex: 1; }
+        .tr-row { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: var(--r-sm); cursor: pointer; color: rgba(255,255,255,.62); }
+        .tr-row.sel { background: rgba(0,87,184,.42); color: white; }
+        .lg-right { flex: 1; display: flex; flex-direction: column; background: var(--sap-gray); }
+        .lg-topbar { background: #004494; height: 36px; display: flex; align-items: center; padding: 0 10px; gap: 1px; border-bottom: 1px solid rgba(0,0,0,.15); flex-shrink: 0; }
+        .lg-topbar .t { padding: 5px 11px; color: rgba(255,255,255,.72); font-size: 12px; cursor: pointer; border-radius: var(--r-sm); }
+        .lg-topbar .t.strong { color: white; font-weight: 500; }
+        .lg-toolbar { background: #dce0e6; height: 32px; display: flex; align-items: center; padding: 0 10px; gap: 2px; border-bottom: 1px solid var(--sap-border); flex-shrink: 0; }
+        .ib { width: 25px; height: 25px; border: 1px solid transparent; background: none; border-radius: var(--r-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12.5px; }
+        .ib:hover { background: white; border-color: var(--sap-border); }
+        .isep { width: 1px; height: 17px; background: var(--sap-border); margin: 0 3px; }
+        .lg-colhdr { display: grid; grid-template-columns: 196px 152px 68px 148px 68px 168px 1fr; padding: 7px 14px 6px; background: var(--sap-gray); border-bottom: 2px solid var(--sap-border); }
+        .col-h { font-size: 11px; font-weight: 600; color: var(--sap-subtle); }
+        .lg-rows { padding: 5px 10px; overflow-y: auto; flex: 1; }
+        .lg-row { display: grid; grid-template-columns: 196px 152px 68px 148px 68px 168px 1fr; padding: 8px 4px; border: 1px solid transparent; border-radius: var(--r-sm); cursor: pointer; transition: all .12s; }
+        .lg-row:hover { background: #e8f0ff; border-color: #bdd4ff; }
+        .lg-row.sel { background: #d4e6ff; border-color: var(--sap-blue); }
+        .sys-ico { width: 16px; height: 16px; background: var(--sap-blue); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; }
+        .lg-status { background: #daeaf8; border-top: 1px solid #b8d6ef; padding: 4px 16px; font-size: 11.5px; color: #1b3a5c; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        #s-login { align-items: center; justify-content: center; background: linear-gradient(145deg, #0a1628 0%, #0d2d5c 45%, #0057b8 80%, #1a7fff 100%); }
+        .login-card { background: white; border-radius: var(--r-lg); width: 400px; box-shadow: var(--shadow-xl); overflow: hidden; }
+        .lc-head { background: var(--sap-sidebar); padding: 28px 36px 24px; text-align: center; }
+        .lc-head .logo-s, .lc-head .logo-a, .lc-head .logo-p { font-family: var(--font-mono); font-size: 44px; font-weight: 600; }
+        .lc-head .logo-s, .lc-head .logo-p { color: white; }
+        .lc-head .logo-a { color: #00c4c4; }
+        .lc-head .company { font-size: 10px; letter-spacing: 3.5px; color: rgba(255,255,255,.4); text-transform: uppercase; margin-top: 9px; }
+        .lc-body { padding: 32px 36px 26px; }
+        .lc-body h2 { font-size: 19px; font-weight: 700; margin-bottom: 3px; }
+        .lc-body .subtitle { font-size: 12.5px; color: var(--sap-subtle); padding-bottom: 20px; border-bottom: 1px solid var(--sap-border); margin-bottom: 22px; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 11px; font-weight: 600; color: var(--sap-subtle); text-transform: uppercase; margin-bottom: 6px; }
+        .field input { width: 100%; padding: 10px 13px; border: 1.5px solid var(--sap-border); border-radius: var(--r-md); font-size: 13.5px; background: var(--sap-gray); outline: none; }
+        .field input:focus { border-color: var(--sap-blue); background: white; box-shadow: 0 0 0 3px rgba(0,112,242,.1); }
+        .btn-login { width: 100%; padding: 12px; background: var(--sap-blue); color: white; border: none; border-radius: var(--r-md); font-size: 13px; font-weight: 600; text-transform: uppercase; cursor: pointer; margin-top: 8px; transition: background .18s; }
+        .btn-login:hover { background: #0060d1; }
+        .lc-foot { background: var(--sap-gray); border-top: 1px solid var(--sap-border); padding: 13px 36px; text-align: center; font-size: 11.5px; color: var(--sap-subtle); }
+        .sap-header { background: var(--sap-header); height: 44px; display: flex; align-items: center; padding: 0 16px; gap: 16px; flex-shrink: 0; }
+        .sap-header .logo { font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: white; }
+        .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
+        .header-system { color: rgba(255,255,255,0.8); font-size: 12px; }
+        .header-right { margin-left: auto; display: flex; align-items: center; gap: 16px; color: rgba(255,255,255,0.8); font-size: 12px; }
+        .sap-menubar { background: #243040; height: 32px; display: flex; align-items: center; padding: 0 8px; gap: 2px; flex-shrink: 0; }
+        .menu-item { padding: 6px 12px; color: rgba(255,255,255,0.85); font-size: 12px; cursor: pointer; border-radius: 2px; transition: background 0.15s; }
+        .menu-item:hover { background: rgba(255,255,255,0.1); }
+        .cmd-bar { background: linear-gradient(180deg, #1c3d62 0%, #162f4d 100%); height: 34px; display: flex; align-items: center; padding: 0 12px; gap: 8px; flex-shrink: 0; border-bottom: 1px solid rgba(0,0,0,.2); }
+        .cmd-wrap { display: flex; align-items: center; position: relative; }
+        .cmd-status { width: 22px; height: 22px; border-radius: 3px 0 0 3px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-right: none; flex-shrink: 0; }
+        .cmd-status.ok { background: var(--sap-success); border-color: var(--sap-success); color: white; }
+        .cmd-status.err { background: #de350b; border-color: #de350b; color: white; }
+        .cmd-inp { width: 148px; height: 22px; background: white; border: 1px solid rgba(255,255,255,.35); border-radius: 0; padding: 0 7px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; outline: none; }
+        .cmd-dd { width: 19px; height: 22px; background: #b8c8d8; border: 1px solid #98aac0; border-left: none; border-radius: 0 3px 3px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+        .app-body { flex: 1; display: flex; overflow: hidden; }
+        .sidebar { width: 258px; background: white; border-right: 1px solid var(--sap-border); display: flex; flex-direction: column; overflow: hidden; }
+        .sb-search { padding: 8px 10px; border-bottom: 1px solid var(--sap-border); }
+        .sb-search input { width: 100%; padding: 6px 10px; border: 1px solid var(--sap-border); border-radius: var(--r-sm); font-size: 12px; outline: none; }
+        .sb-nav { flex: 1; overflow-y: auto; padding: 5px 0; }
+        .nav-sec { margin-bottom: 1px; }
+        .nav-sec-hdr { display: flex; align-items: center; gap: 7px; padding: 6px 14px 6px; cursor: pointer; }
+        .nav-arr { font-size: 8.5px; color: #9ba5b4; transition: transform .2s; width: 10px; }
+        .nav-sec.open .nav-arr { transform: rotate(90deg); }
+        .nav-children { display: none; padding: 0 6px 4px 28px; }
+        .nav-sec.open .nav-children { display: block; }
+        .nav-item { display: flex; align-items: center; gap: 7px; padding: 5px 10px; font-size: 12px; color: #4a5568; cursor: pointer; border-radius: var(--r-sm); margin: 1px 0; }
+        .nav-item:hover { background: #eef4ff; color: var(--sap-blue); }
+        .welcome-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--sap-gray); padding: 36px; gap: 22px; overflow: auto; }
+        .w-banner { background: linear-gradient(135deg, var(--sap-sidebar) 0%, #1e3557 100%); border-radius: var(--r-lg); width: 100%; max-width: 720px; padding: 34px 40px; position: relative; text-align: center; }
+        .w-banner h1 { font-family: var(--font-mono); font-size: 32px; font-weight: 700; color: white; letter-spacing: -1px; margin-bottom: 6px; }
+        .w-banner h1 span { color: #00c4c4; }
+        .qcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 720px; }
+        .qcard { background: white; border: 1px solid var(--sap-border); border-radius: var(--r-md); padding: 15px 16px; cursor: pointer; transition: all .18s; display: flex; align-items: flex-start; gap: 12px; }
+        .qcard:hover { border-color: #b3cfff; box-shadow: 0 4px 18px rgba(0,112,242,.12); transform: translateY(-2px); }
+        .qc-code { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--sap-blue); }
+        .sap-toolbar { background: #f0f1f2; border-bottom: 1px solid var(--sap-border); height: 36px; display: flex; align-items: center; padding: 0 12px; gap: 4px; flex-shrink: 0; }
+        .toolbar-btn { width: 28px; height: 28px; border: 1px solid transparent; background: none; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
+        .toolbar-btn:hover { background: white; border-color: var(--sap-border); }
+        .sap-statusbar { background: #dde8f5; border-top: 1px solid #b8cfe8; padding: 4px 18px; font-size: 11.5px; color: #1b3a5c; display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .filter-section { background: white; border: 1px solid var(--sap-border); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+        .filter-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+        .filter-row label { display: block; font-size: 11px; font-weight: 500; color: var(--sap-subtle); text-transform: uppercase; margin-bottom: 6px; }
+        .filter-row input, .filter-row select { width: 100%; padding: 8px 10px; border: 1px solid var(--sap-border); border-radius: 3px; font-size: 13px; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { padding: 8px 16px; background: var(--sap-blue); color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; font-weight: 500; }
+        .btn:hover { background: #0060d1; }
+        .btn-success { background: var(--sap-success); }
+        .btn-success:hover { background: #0d6c36; }
+        .btn-warning { background: var(--sap-warning); }
+        .btn-warning:hover { background: #c75a0a; }
+        .btn-primary { background: var(--sap-blue); }
+        .btn-primary:hover { background: #0060d1; }
+        .btn-select-all { background: var(--sap-gray); color: var(--sap-text); border: 1px solid var(--sap-border); }
+        .btn-select-all:hover { background: #e0e0e0; }
+        .data-selection-panel { background: white; border: 1px solid var(--sap-border); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .selection-title { font-weight: 600; color: var(--sap-text); margin-bottom: 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .selection-options { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+        .selection-option { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 12px; background: var(--sap-gray); border-radius: 6px; transition: all 0.2s; }
+        .selection-option:hover { background: #e8f0ff; }
+        .selection-option input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--sap-success); }
+        .selection-option .option-text { font-weight: 500; font-size: 13px; }
+        .tabs-container { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--sap-border); padding-bottom: 8px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 20px; background: var(--sap-gray); border: 1px solid var(--sap-border); border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { background: #e8f0ff; border-color: var(--sap-blue); }
+        .tab-btn.active { background: var(--sap-blue); color: white; border-color: var(--sap-blue); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .results-section { background: white; border: 1px solid var(--sap-border); border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; }
+        .results-header { background: var(--sap-gray); padding: 12px 16px; border-bottom: 1px solid var(--sap-border); font-size: 12px; font-weight: 500; color: var(--sap-subtle); }
+        .results-table { overflow-x: auto; flex: 1; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        thead { background: var(--sap-gray); position: sticky; top: 0; }
+        th { padding: 10px 12px; text-align: left; font-weight: 600; color: var(--sap-text); border-bottom: 1px solid var(--sap-border); }
+        td { padding: 8px 12px; border-bottom: 1px solid var(--sap-border); }
+        tbody tr:hover { background: #f9f9f9; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
+        .loading-overlay.visible { display: flex; }
+        .loading-content { background: white; padding: 32px; border-radius: 4px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--sap-gray); border-top-color: var(--sap-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast { position: fixed; bottom: 26px; right: 26px; background: var(--sap-success); color: white; padding: 12px 20px; border-radius: 8px; display: none; align-items: center; gap: 8px; z-index: 9998; }
+        .content-area { flex: 1; overflow: auto; padding: 20px; }
+        .badge { display: inline-block; background: var(--sap-success); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; }
+        .warning-text { color: var(--sap-warning); font-size: 11px; margin-top: 8px; }
+        .info-text { color: var(--sap-blue); font-size: 11px; margin-top: 8px; }
+        
+        /* Botón Dashboard en esquina superior derecha - CON CLIC */
+        .dashboard-corner-btn {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            z-index: 999;
+            display: none;
+        }
+        .dashboard-btn {
+            background: var(--sap-blue);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .dashboard-btn:hover {
+            background: #0060d1;
+            transform: scale(1.02);
+        }
+        .dashboard-menu {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .dashboard-menu.show {
+            display: block;
+        }
+        .dashboard-menu a {
+            display: block;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: var(--sap-text);
+            font-size: 13px;
+            border-bottom: 1px solid var(--sap-border);
+            transition: background 0.2s;
+        }
+        .dashboard-menu a:hover {
+            background: #e8f0ff;
+            color: var(--sap-blue);
+        }
+        .dashboard-menu a:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- PANTALLA 1: LOGON -->
+<div id="s-logon" class="screen active">
+    <div class="lg-left">
+        <div class="lg-left-hdr"><div class="brand">SAP Logon 760</div></div>
+        <div class="lg-tree-lbl">Workspaces</div>
+        <div class="lg-tree">
+            <div class="tr-row"><span class="tr-arr">▼</span><span>📁 Workspaces</span></div>
+            <div class="tr-row sel" style="padding-left:22px;"><span class="tr-arr">▶</span><span>📂 Local</span></div>
+        </div>
+    </div>
+    <div class="lg-right">
+        <div class="lg-topbar"><span class="t strong" id="lg-acceder">Acceder al sistema</span><span class="t">Acceso variable</span><div style="margin-left:auto;"><input style="width:170px;height:23px;background:rgba(255,255,255,.07);border-radius:4px;color:rgba(255,255,255,.7);padding:0 8px;" placeholder="🔍 Filtrar..."></div></div>
+        <div class="lg-toolbar"><button class="ib">📄</button><button class="ib">✏️</button><button class="ib">🗑️</button><div class="isep"></div><button class="ib">⬆</button><button class="ib">⬇</button></div>
+        <div style="flex:1;overflow:auto;">
+            <div class="lg-colhdr"><div class="col-h">Nombre</div><div class="col-h">Descripción</div><div class="col-h">IdS</div><div class="col-h">Grupo/Servidor</div><div class="col-h">Núm.</div><div class="col-h">Servidor</div><div class="col-h">Router</div></div>
+            <div class="lg-rows"><div class="lg-row sel" id="logon-row"><div class="rc"><div class="sys-ico">S</div><strong>SAP ERP Future Logistics</strong></div><div class="rc">Sist. Almacenamiento</div><div class="rc">PSC</div><div class="rc">172.19.1.15</div><div class="rc">50</div><div class="rc"></div><div class="rc">/H/54.172.251.102</div></div></div>
+        </div>
+        <div class="lg-status"><span>💡</span><span>Doble clic para iniciar sesión</span><span id="clock1"></span></div>
+    </div>
+</div>
+
+<!-- PANTALLA 2: LOGIN -->
+<div id="s-login" class="screen">
+    <div class="login-card">
+        <div class="lc-head"><div class="logo-wrap"><span class="logo-s">S</span><span class="logo-a">A</span><span class="logo-p">P</span></div><div class="company">Future Logistics S.A.</div></div>
+        <div class="lc-body">
+            <h2>Iniciar Sesión</h2>
+            <p class="subtitle">Sistema de Almacenamiento y Transporte</p>
+            <div class="field"><label>Usuario</label><input type="text" id="loginUser" value="supervisor"></div>
+            <div class="field"><label>Contraseña</label><input type="password" id="loginPass" value="distribucion2026"></div>
+            <button class="btn-login" id="btnLogin">ACCEDER</button>
+        </div>
+        <div class="lc-foot">© Future Logistics S.A. — Todos los derechos reservados</div>
+    </div>
+</div>
+
+<!-- PANTALLA 3: EASY ACCESS -->
+<div id="s-ea" class="screen">
+    <div class="sap-header">
+        <div class="logo">SAP</div>
+        <div class="header-divider"></div>
+        <div class="header-system">Sistema de Almacenamiento y Transporte</div>
+        <div class="header-right"><span>Usuario: <strong>supervisor</strong></span><span>Período: <strong>2024-2025</strong></span></div>
+    </div>
+    <div class="sap-menubar">
+        <div class="menu-item" onclick="mostrarFiltros()">📊 Consulta Histórica</div>
+        <div class="menu-item" onclick="resetApp()">🔄 Nueva Consulta</div>
+    </div>
+    <div class="cmd-bar">
+        <div class="cmd-wrap">
+            <div class="cmd-status" id="cmdSt">▸</div>
+            <input class="cmd-inp" id="cmdInp" type="text" placeholder="Código de transacción..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); ejecutarComando(); }" autocomplete="off">
+            <div class="cmd-dd" onclick="togSugs()">▼</div>
+        </div>
+        <span class="cmd-hint">Ingresa <strong>Lx02</strong> y presiona Enter</span>
+        <div style="margin-left:auto;"><button onclick="ejecutarComando()" class="btn" style="background:var(--sap-blue);color:white;border:none;padding:0 12px;height:24px;border-radius:4px;">▶ Ejecutar</button></div>
+    </div>
+    <div class="sap-toolbar">
+        <button class="toolbar-btn" onclick="ejecutarReporte()" title="Ejecutar consulta">▶</button>
+        <button class="toolbar-btn" onclick="location.reload()" title="Actualizar">🔃</button>
+    </div>
+    <div class="app-body">
+        <div class="sidebar">
+            <div class="sb-search"><input type="text" placeholder="🔍 Buscar módulo..."></div>
+            <div class="sb-nav">
+                <div class="nav-sec open"><div class="nav-sec-hdr"><span class="nav-arr">▶</span><span>⭐</span><span class="nav-sec-lbl">Favoritos</span></div><div class="nav-children"><div class="nav-item" onclick="seleccionarModulo('Lx02')">📦 Lx02 — Stocks WM</div></div></div>
+                <div class="nav-sec open"><div class="nav-sec-hdr"><span class="nav-arr">▶</span><span>🚚</span><span class="nav-sec-lbl">Logística</span></div><div class="nav-children"><div class="nav-item" onclick="seleccionarModulo('Lx02')">📦 Lx02 — Stocks WM detalle</div></div></div>
+            </div>
+        </div>
+        <div class="welcome-area">
+            <div class="w-banner">
+                <h1>SAP <span>Easy Access</span></h1>
+            </div>
+            <div class="qcards"><div class="qcard" onclick="seleccionarModulo('Lx02')"><div><div class="qc-code">Lx02</div><div class="qc-desc">Stocks WM con texto breve del material</div></div></div></div>
+        </div>
+    </div>
+    <div class="sap-statusbar"><span>✅ Sesión iniciada — supervisor</span><span id="clock3"></span></div>
+</div>
+
+<!-- PANTALLA 4: FILTROS -->
+<div id="s-filter" class="screen">
+    <div class="sap-header">
+        <div class="logo">SAP</div>
+        <div class="header-divider"></div>
+        <div class="header-system">Sistema de Almacenamiento y Transporte</div>
+        <div class="header-right"><span>Usuario: <strong>supervisor</strong></span><button class="btn" onclick="goToEasyAccess()" style="background:#1b3a5c;">◀ Menú</button></div>
+    </div>
+    <div class="content-area">
+        <div class="filter-section">
+            <div class="filter-row">
+                <div><label>Fecha Desde</label><input type="date" id="fechaDesde" value="2024-01-02"></div>
+                <div><label>Fecha Hasta</label><input type="date" id="fechaHasta" value="2025-12-31"></div>
+                <div><label>Bodega</label><select id="filtBodega"><option value="">TODAS LAS BODEGAS</option><option value="01">BODEGA 01 - DURAN</option><option value="02">BODEGA 02 - DURAN</option><option value="03">BODEGA 03 - DURAN</option><option value="04">BODEGA 04 - DURAN</option><option value="05">BODEGA 05 - DURAN</option><option value="11">BODEGA 11 - DURAN</option></select></div>
+                <div><label>Tipo de Azúcar</label><select id="filtTipo"><option value="">TODOS LOS TIPOS</option><option value="BLANCA">Azúcar Blanca</option><option value="MORENA">Azúcar Morena</option></select></div>
+            </div>
+            
+            <div class="data-selection-panel" style="margin-top: 16px;">
+                <div class="selection-title">
+                    <span>📋</span> SELECCIONE LOS DATOS A CONSULTAR
+                </div>
+                <div class="selection-options" id="dataSelectionOptions">
+                    <label class="selection-option">
+                        <input type="checkbox" id="chkTransporte" value="TRANSPORTE">
+                        <span class="option-text">📦 TRANSPORTE</span>
+                        <span class="badge">Ingreso de azúcar a bodegas</span>
+                    </label>
+                    <label class="selection-option">
+                        <input type="checkbox" id="chkDespacho" value="DESPACHO">
+                        <span class="option-text">🚚 DESPACHO</span>
+                        <span class="badge">Salida a clientes</span>
+                    </label>
+                    <label class="selection-option">
+                        <input type="checkbox" id="chkDevolucion" value="DEVOLUCION">
+                        <span class="option-text">🔄 DEVOLUCIONES</span>
+                        <span class="badge">Devoluciones de clientes</span>
+                    </label>
+                    <button class="btn btn-select-all" onclick="seleccionarTodos()" style="margin-left: auto; padding: 6px 12px;">☑ SELECCIONAR TODOS</button>
+                </div>
+                <div class="info-text" id="dependencyInfo" style="display: none;">ℹ️ Las DEVOLUCIONES requieren que DESPACHO esté seleccionado (dependencia lógica)</div>
+                <div class="warning-text" id="selectionWarning" style="display: none;">⚠️ Debe seleccionar al menos un tipo de dato para consultar.</div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="ejecutarReporte()">▶ EJECUTAR REPORTE</button>
+                <button class="btn btn-warning" onclick="limpiarFiltros()">🔄 LIMPIAR FILTROS</button>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:#666;text-align:center;"><span>📅 Basado en operaciones reales 2024-2025</span></div>
+        </div>
+    </div>
+    <div class="sap-statusbar"><span>Seleccione los datos a consultar y presione Ejecutar</span><span id="clockF"></span></div>
+</div>
+
+<!-- PANTALLA 5: RESULTADOS -->
+<div id="s-results" class="screen">
+    <div class="sap-header">
+        <div class="logo">SAP</div>
+        <div class="header-divider"></div>
+        <div class="header-system">Sistema de Almacenamiento y Transporte</div>
+        <div class="header-right"><span>Usuario: <strong>supervisor</strong></span><button class="btn" onclick="goToFiltros()" style="background:#1b3a5c;">◀ Filtros</button><button class="btn" onclick="goToEasyAccess()" style="background:#1b3a5c;">🏠 Menú</button></div>
+    </div>
+    
+    <!-- BOTÓN DASHBOARD EN ESQUINA SUPERIOR DERECHA -->
+    <div id="dashboardCornerBtn" class="dashboard-corner-btn">
+        <div class="dashboard-btn" id="dashboardMainBtn">
+            📊 VER DASHBOARD ▼
+        </div>
+        <div class="dashboard-menu" id="dashboardMenu">
+            <a href="#" id="dashboardLinkTransporte" target="_blank">📦 Dashboard TRANSPORTE</a>
+            <a href="#" id="dashboardLinkDespacho" target="_blank">🚚 Dashboard DESPACHO</a>
+            <a href="#" id="dashboardLinkDevolucion" target="_blank">🔄 Dashboard DEVOLUCIONES</a>
+            <a href="#" id="dashboardLinkAll" target="_blank">📊 Dashboard COMPLETO</a>
+        </div>
+    </div>
+    
+    <div class="sap-toolbar">
+        <button class="toolbar-btn" onclick="exportarSegunSeleccion()" title="Exportar datos seleccionados">💾</button>
+    </div>
+    <div class="content-area">
+        <div class="results-section" id="resultsArea" style="display:none;">
+            <div class="results-header" id="resultsInfo"></div>
+            
+            <div class="tabs-container" id="tabsContainer">
+                <button class="tab-btn" data-tab="tabTransporte" onclick="cambiarTab('tabTransporte')" style="display:none;">📦 TRANSPORTE <span id="tabTransporteCount"></span></button>
+                <button class="tab-btn" data-tab="tabDespacho" onclick="cambiarTab('tabDespacho')" style="display:none;">🚚 DESPACHO <span id="tabDespachoCount"></span></button>
+                <button class="tab-btn" data-tab="tabDevolucion" onclick="cambiarTab('tabDevolucion')" style="display:none;">🔄 DEVOLUCIONES <span id="tabDevolucionCount"></span></button>
+            </div>
+            
+            <div id="tabTransporte" class="tab-content">
+                <div class="results-table"><table id="resultsTableTransporte"><thead></thead><tbody></tbody></table></div>
+            </div>
+            <div id="tabDespacho" class="tab-content">
+                <div class="results-table"><table id="resultsTableDespacho"><thead></thead><tbody></tbody></table></div>
+            </div>
+            <div id="tabDevolucion" class="tab-content">
+                <div class="results-table"><table id="resultsTableDevolucion"><thead></thead><tbody></tbody></table></div>
+            </div>
+            
+            <button class="btn btn-primary dynamic-export-btn" id="btnExportarDinamicoGrande" onclick="exportarSegunSeleccion()">💾 DESCARGAR ARCHIVOS SELECCIONADOS</button>
+        </div>
+    </div>
+    <div class="sap-statusbar"><span id="statusBar">✅ Sistema listo</span><span id="clockR"></span></div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-content"><div class="spinner"></div><p id="loadingText">Cargando datos...</p><p id="loadingSub">Consultando base de datos SAP</p></div></div>
+<div class="toast" id="toast"><span>✅</span><span id="toastMsg"></span></div>
+
+<script>
+// ============================================================
+// DATOS MAESTROS
+// ============================================================
+
+const CLIENTES = [
+    { id: 1, nombre: 'JEFAMICORP S.A.', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}] },
+    { id: 2, nombre: 'DON GATO SUPERMERCADO MAYORISTA', ciudades: [{nombre:'QUITO', idDestino:3, idProvincia:2}] },
+    { id: 3, nombre: 'LÁCTEOS RODRÍGUEZ', ciudades: [{nombre:'PÍLLARO', idDestino:9, idProvincia:3}] },
+    { id: 4, nombre: 'ESENCIA COFFEE AND BRU', ciudades: [{nombre:'QUITO', idDestino:3, idProvincia:2}, {nombre:'ATUNTAQUI', idDestino:11, idProvincia:4}] },
+    { id: 5, nombre: 'CORPORACIÓN FAVORITA', ciudades: [{nombre:'SANGOLQUÍ', idDestino:4, idProvincia:2}, {nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}, {nombre:'CUENCA', idDestino:7, idProvincia:5}] },
+    { id: 6, nombre: 'CORPORACIÓN EL ROSADO', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}, {nombre:'QUITO', idDestino:3, idProvincia:2}] },
+    { id: 7, nombre: 'TIA S.A.', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}, {nombre:'CALACALÍ', idDestino:5, idProvincia:2}] },
+    { id: 8, nombre: 'SUPERMERCADOS SANTA MARÍA', ciudades: [{nombre:'QUITO', idDestino:3, idProvincia:2}, {nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}] },
+    { id: 9, nombre: 'CORAL HIPERMERCADOS', ciudades: [{nombre:'CUENCA', idDestino:7, idProvincia:5}, {nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}, {nombre:'QUITO', idDestino:3, idProvincia:2}] },
+    { id: 10, nombre: 'DISTRIBUIDORA GUAYACÁN', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}] },
+    { id: 11, nombre: 'COMERCIAL IZURIETA', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}] },
+    { id: 12, nombre: 'MODERNA ALIMENTOS', ciudades: [{nombre:'QUITO', idDestino:3, idProvincia:2}, {nombre:'MANTA', idDestino:8, idProvincia:6}, {nombre:'CAYAMBE', idDestino:6, idProvincia:2}] },
+    { id: 13, nombre: 'TUTIFRUTI', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}] },
+    { id: 14, nombre: 'GRUPO BIMBO (ECUADOR)', ciudades: [{nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}, {nombre:'QUITO', idDestino:3, idProvincia:2}] },
+    { id: 15, nombre: 'PRONACA', ciudades: [{nombre:'PUEMBO', idDestino:13, idProvincia:2}, {nombre:'GUAYAQUIL', idDestino:1, idProvincia:1}, {nombre:'SANTO DOMINGO', idDestino:12, idProvincia:7}] }
+];
+
+const PRODUCTOS = [
+    { codigo: '10000261', descripcion: 'AZUCAR BLANCA S/C FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000263', descripcion: 'AZUCAR BLANCA S/C FARDO 1/2 KG X 20 KG', pesoPaquete: 0.5, uma: 'F20', paquetesPorFardo: 48, pesoFardo: 24 },
+    { codigo: '10000266', descripcion: 'AZUCAR MORENA S/C FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000270', descripcion: 'AZUCAR BLANCA M/C FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000271', descripcion: 'AZUCAR BLANCA MSM FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000281', descripcion: 'AZUCAR BLANCA S/C FARDO 1/4 KG X 15 KG', pesoPaquete: 0.25, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 15 },
+    { codigo: '10000284', descripcion: 'AZUCAR BLANCA S/C FARDO 5 KG X 30 KG', pesoPaquete: 5, uma: 'F30', paquetesPorFardo: 30, pesoFardo: 150 },
+    { codigo: '10000286', descripcion: 'AZUCAR BLANCA MSM FARDO 5 KG X 30 KG', pesoPaquete: 5, uma: 'F30', paquetesPorFardo: 30, pesoFardo: 150 },
+    { codigo: '10000287', descripcion: 'AZUCAR BLANCA M/C FARDO 5 KG X 30 KG', pesoPaquete: 5, uma: 'F30', paquetesPorFardo: 30, pesoFardo: 150 },
+    { codigo: '10000289', descripcion: 'AZUCAR BLANCA S/C FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000290', descripcion: 'AZUCAR BLANCA M/C FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000292', descripcion: 'AZUCAR MORENA M/C FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000295', descripcion: 'AZUCAR MORENA M/C FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000299', descripcion: 'AZUCAR MORENA S/C FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000307', descripcion: 'AZUCAR BLANCA I/M FARDO 1.8 KG X 18 KG', pesoPaquete: 1.8, uma: 'F18', paquetesPorFardo: 30, pesoFardo: 54 },
+    { codigo: '10000308', descripcion: 'AZUCAR BLANCA I/M FARDO 0.9 KG X 13.5 KG', pesoPaquete: 0.9, uma: 'F13', paquetesPorFardo: 30, pesoFardo: 27 },
+    { codigo: '10000320', descripcion: 'AZUCAR MORENA MSM FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000325', descripcion: 'AZUCAR BLANCA D/A FARDO 1 KG X 12 KG', pesoPaquete: 1, uma: 'F12', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000326', descripcion: 'AZUCAR MORENA D/A FARDO 1 KG X 12 KG', pesoPaquete: 1, uma: 'F12', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000338', descripcion: 'AZUCAR BLANCA L/B FARDO 1/2 KG X 20 KG', pesoPaquete: 0.5, uma: 'F20', paquetesPorFardo: 48, pesoFardo: 24 },
+    { codigo: '10000339', descripcion: 'AZUCAR BLANCA L/B FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 },
+    { codigo: '10000340', descripcion: 'AZUCAR BLANCA L/B FARDO 2 KG X 20 KG', pesoPaquete: 2, uma: 'F20', paquetesPorFardo: 42, pesoFardo: 84 },
+    { codigo: '10000352', descripcion: 'AZUCAR BLANCA MSM FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 }
+];
+
+const MOTIVOS_DEVOLUCION = ['DAÑADO EMPAQUE'];
+const RUMAS_POR_BODEGA = {
+    1: ['02-01-01', '02-01-02', '02-01-03', '02-01-04', '02-01-05'],
+    2: ['02-02-01', '02-02-02', '02-02-03'],
+    3: ['02-03-01', '02-03-02'],
+    4: ['02-04-01', '02-04-02'],
+    5: ['02-05-01', '02-05-02'],
+    6: ['02-11-01', '02-11-02']
+};
+
+let contadorOrdenTransporte = 100000;
+let contadorOrdenDespacho = 200000;
+let contadorOrdenDevolucion = 60000;
+
+let datosTransporte = [];
+let datosDespachos = [];
+let datosDevoluciones = [];
+
+let seleccionTransporte = false;
+let seleccionDespacho = false;
+let seleccionDevolucion = false;
+
+// Enlaces de dashboard
+const DASHBOARD_LINKS = {
+    'TRANSPORTE': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/5963a551ab45ea61da82?experience=power-bi',
+    'DESPACHO': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/624939736adb5216190c?experience=power-bi',
+    'DEVOLUCIONES': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/f51c9d6120667dded1d3?experience=power-bi'
+};
+
+// ============================================================
+// FUNCIONES DE GENERACIÓN
+// ============================================================
+
+function esDiaHabil(fecha) {
+    if (fecha.getDay() === 0) return false;
+    if (fecha.getMonth() === 0 && fecha.getDate() === 1) return false;
+    return true;
+}
+
+function generarTransportes(desde, hasta) {
+    const transportes = [];
+    const fechaInicio = new Date(desde);
+    const fechaFin = new Date(hasta);
+    
+    for (let fechaActual = new Date(fechaInicio); fechaActual <= fechaFin; fechaActual.setDate(fechaActual.getDate() + 1)) {
+        if (!esDiaHabil(fechaActual)) continue;
+        
+        const fechaStr = fechaActual.toISOString().split('T')[0];
+        const mes = fechaActual.getMonth() + 1;
+        const año = fechaActual.getFullYear();
+        const lote = `${String(mes).padStart(2, '0')}${año}`;
+        
+        const config = año === 2024 ? { alta: { min: 180, max: 220 }, baja: { min: 80, max: 120 } } 
+                                   : { alta: { min: 220, max: 240 }, baja: { min: 120, max: 140 } };
+        const esAlta = (mes >= 6 && mes <= 12);
+        const rango = esAlta ? config.alta : config.baja;
+        const numRegistros = Math.floor(Math.random() * (rango.max - rango.min + 1)) + rango.min;
+        
+        for (let i = 0; i < numRegistros; i++) {
+            const producto = PRODUCTOS[Math.floor(Math.random() * PRODUCTOS.length)];
+            const ordenTransporte = contadorOrdenTransporte++;
+            const idBodega = Math.floor(Math.random() * 6) + 1;
+            const rumaList = RUMAS_POR_BODEGA[idBodega];
+            const ruma = rumaList[Math.floor(Math.random() * rumaList.length)];
+            const numFardos = Math.floor(Math.random() * 8) + 1;
+            const kilos = Math.round(numFardos * producto.pesoFardo);
+            
+            transportes.push({
+                FECHA: fechaStr, 
+                ORDEN_TRANSPORTE: ordenTransporte, 
+                ID_PRODUCTO: producto.codigo,
+                ID_BODEGA: idBodega, 
+                CTD_TEORICA_DESDE: kilos, 
+                CTD_TEORICA_HACIA: kilos,
+                RUMA_ALMACENAMIENTO: ruma, 
+                UMA: producto.uma, 
+                LOTE: lote, 
+                ESTADO: 'COMPLETADO'
+            });
+        }
+    }
+    return transportes;
+}
+
+function generarDespachos(transportes) {
+    const despachos = [];
+    for (const transporte of transportes) {
+        const fecha = new Date(transporte.FECHA);
+        const año = fecha.getFullYear();
+        const mes = fecha.getMonth();
+        const dia = fecha.getDate();
+        
+        if (mes === 0 && dia === 1) continue;
+        
+        const kilosParaDividir = transporte.CTD_TEORICA_HACIA;
+        let kilosRestantes = kilosParaDividir;
+        
+        let numDespachos = año === 2024 ? Math.floor(Math.random() * 3) + 1 :
+                          (Math.random() < 0.2 ? 1 : (Math.random() < 0.5 ? 2 : 3));
+        
+        for (let i = 0; i < numDespachos; i++) {
+            const cliente = CLIENTES[Math.floor(Math.random() * CLIENTES.length)];
+            const ciudadIndex = Math.floor(Math.random() * cliente.ciudades.length);
+            const ciudad = cliente.ciudades[ciudadIndex];
+            
+            let kilosDespacho;
+            if (i === numDespachos - 1) kilosDespacho = kilosRestantes;
+            else {
+                const porcentaje = 0.3 + Math.random() * 0.4;
+                kilosDespacho = Math.floor(kilosRestantes * porcentaje);
+                kilosRestantes -= kilosDespacho;
+            }
+            kilosDespacho = Math.max(50, Math.min(500, kilosDespacho));
+            const ordenDespacho = contadorOrdenDespacho++;
+            
+            despachos.push({
+                FECHA: transporte.FECHA, 
+                ORDEN_DESPACHO: ordenDespacho, 
+                ID_CLIENTE: cliente.id,
+                ID_BODEGA: transporte.ID_BODEGA,
+                ID_PRODUCTO: transporte.ID_PRODUCTO, 
+                RUMA_DESPACHO: transporte.RUMA_ALMACENAMIENTO,
+                UMA: transporte.UMA, 
+                LOTE: transporte.LOTE, 
+                ID_PROVINCIA: ciudad.idProvincia,
+                ID_DESTINO: ciudad.idDestino, 
+                KILOS_DESPACHADOS_CLIENTE: kilosDespacho, 
+                ESTADO: 'DESPACHADO'
+            });
+        }
+    }
+    return despachos;
+}
+
+function generarDevoluciones(despachos, desde, hasta) {
+    const devoluciones = [];
+    const fechaInicio = new Date(desde);
+    const fechaFin = new Date(hasta);
+    
+    if (despachos.length === 0) return devoluciones;
+    
+    const despachos2024 = despachos.filter(d => new Date(d.FECHA).getFullYear() === 2024);
+    const despachos2025 = despachos.filter(d => new Date(d.FECHA).getFullYear() === 2025);
+    
+    const totalVolumen2024 = despachos2024.reduce((sum, d) => sum + d.KILOS_DESPACHADOS_CLIENTE, 0);
+    const totalVolumen2025 = despachos2025.reduce((sum, d) => sum + d.KILOS_DESPACHADOS_CLIENTE, 0);
+    
+    const PORCENTAJE_DEVOLUCION = 0.03;
+    const objetivo2024 = totalVolumen2024 * PORCENTAJE_DEVOLUCION;
+    const objetivo2025 = totalVolumen2025 * PORCENTAJE_DEVOLUCION;
+    
+    function generarParaDespachos(despachosAnio, objetivo) {
+        const resultado = [];
+        if (despachosAnio.length === 0 || objetivo <= 0) return resultado;
+        
+        const diasHabiles = [];
+        for (let fecha = new Date(fechaInicio); fecha <= fechaFin; fecha.setDate(fecha.getDate() + 1)) {
+            if (esDiaHabil(fecha)) {
+                diasHabiles.push(fecha.toISOString().split('T')[0]);
+            }
+        }
+        
+        const shuffledDias = [...diasHabiles];
+        for (let i = shuffledDias.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledDias[i], shuffledDias[j]] = [shuffledDias[j], shuffledDias[i]];
+        }
+        
+        const kgPorDia = new Map();
+        const MAX_KG_POR_DIA = 5000;
+        let volumenActual = 0;
+        let diaIndex = 0;
+        
+        while (volumenActual < objetivo && diaIndex < shuffledDias.length) {
+            const fechaDevolucion = shuffledDias[diaIndex];
+            let disponibles = MAX_KG_POR_DIA - (kgPorDia.get(fechaDevolucion) || 0);
+            
+            if (disponibles <= 0) {
+                diaIndex++;
+                continue;
+            }
+            
+            const objetivoHoy = Math.min(disponibles, objetivo - volumenActual);
+            if (objetivoHoy < 50) {
+                diaIndex++;
+                continue;
+            }
+            
+            const disponiblesDespachos = despachosAnio.filter(d => {
+                const fechaDespacho = new Date(d.FECHA);
+                const fechaDev = new Date(fechaDevolucion);
+                const diff = (fechaDev - fechaDespacho) / (24 * 60 * 60 * 1000);
+                return diff >= 1 && diff <= 5;
+            });
+            
+            if (disponiblesDespachos.length === 0) {
+                diaIndex++;
+                continue;
+            }
+            
+            const shuffledDespachos = [...disponiblesDespachos];
+            for (let i = shuffledDespachos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledDespachos[i], shuffledDespachos[j]] = [shuffledDespachos[j], shuffledDespachos[i]];
+            }
+            
+            let kgHoy = 0;
+            
+            for (const despacho of shuffledDespachos) {
+                if (kgHoy >= objetivoHoy) break;
+                
+                const restante = objetivoHoy - kgHoy;
+                const producto = PRODUCTOS.find(p => p.codigo === despacho.ID_PRODUCTO);
+                if (!producto) continue;
+                
+                let maxDevolver = Math.min(despacho.KILOS_DESPACHADOS_CLIENTE, 150);
+                let kilos = Math.floor(Math.random() * maxDevolver) + 10;
+                if (kilos > restante) kilos = restante;
+                if (kilos > 150) kilos = 150;
+                
+                const cantidad = Math.max(1, Math.floor(kilos / producto.pesoFardo));
+                kilos = producto.pesoFardo * cantidad;
+                if (kilos <= 0 || kilos > restante) continue;
+                
+                kgHoy += kilos;
+                volumenActual += kilos;
+                
+                const ordenDevolucion = contadorOrdenDevolucion++;
+                const idBodegaDestino = Math.floor(Math.random() * 6) + 1;
+                const rumaDestinoList = RUMAS_POR_BODEGA[idBodegaDestino];
+                const rumaDestino = rumaDestinoList[Math.floor(Math.random() * rumaDestinoList.length)];
+                
+                resultado.push({
+                    FECHA_DEVOLUCION: fechaDevolucion,
+                    ORDEN_DEVOLUCION: ordenDevolucion,
+                    ORDEN_DESPACHO_ORIGINAL: despacho.ORDEN_DESPACHO,
+                    ID_CLIENTE: despacho.ID_CLIENTE,
+                    ID_PRODUCTO: despacho.ID_PRODUCTO,
+                    KILOS_DEVUELTOS: kilos,
+                    ID_PROVINCIA: despacho.ID_PROVINCIA,
+                    ID_DESTINO: despacho.ID_DESTINO,
+                    ID_BODEGA: idBodegaDestino,
+                    RUMA_DESTINO: rumaDestino,
+                    MOTIVO_DEVOLUCION: 'DAÑADO EMPAQUE'
+                });
+            }
+            
+            if (kgHoy > 0) {
+                kgPorDia.set(fechaDevolucion, (kgPorDia.get(fechaDevolucion) || 0) + kgHoy);
+            }
+            diaIndex++;
+        }
+        
+        return resultado;
+    }
+    
+    contadorOrdenDevolucion = 60000;
+    const devoluciones2024 = generarParaDespachos(despachos2024, objetivo2024);
+    const devoluciones2025 = generarParaDespachos(despachos2025, objetivo2025);
+    
+    const todasDevoluciones = [...devoluciones2024, ...devoluciones2025];
+    todasDevoluciones.sort((a, b) => new Date(a.FECHA_DEVOLUCION) - new Date(b.FECHA_DEVOLUCION));
+    
+    console.log(`📊 DEVOLUCIONES 2024: ${devoluciones2024.length} registros (objetivo: ${(objetivo2024/1000).toFixed(1)} kg)`);
+    console.log(`📊 DEVOLUCIONES 2025: ${devoluciones2025.length} registros (objetivo: ${(objetivo2025/1000).toFixed(1)} kg)`);
+    
+    return todasDevoluciones;
+}
+
+// ============================================================
+// FUNCIONES DE INTERFAZ
+// ============================================================
+
+function goToLogin() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s-login').classList.add('active');
+    ocultarBotonDashboard();
+}
+
+function goToEasyAccess() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s-ea').classList.add('active');
+    ocultarBotonDashboard();
+}
+
+function goToFiltros() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s-filter').classList.add('active');
+    ocultarBotonDashboard();
+}
+
+function mostrarFiltros() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s-filter').classList.add('active');
+    ocultarBotonDashboard();
+}
+
+function setFechasDefault() {
+    document.getElementById('fechaDesde').value = '2024-01-02';
+    document.getElementById('fechaHasta').value = '2025-12-31';
+}
+
+function doLogin() {
+    const usuario = document.getElementById('loginUser').value;
+    const password = document.getElementById('loginPass').value;
+    if (usuario && password) {
+        goToEasyAccess();
+        setFechasDefault();
+        mostrarToast('Sesión iniciada correctamente');
+    }
+}
+
+function limpiarFiltros() {
+    document.getElementById('filtBodega').value = '';
+    document.getElementById('filtTipo').value = '';
+    document.getElementById('chkTransporte').checked = false;
+    document.getElementById('chkDespacho').checked = false;
+    document.getElementById('chkDevolucion').checked = false;
+    setFechasDefault();
+    document.getElementById('selectionWarning').style.display = 'none';
+    document.getElementById('dependencyInfo').style.display = 'none';
+    seleccionTransporte = false;
+    seleccionDespacho = false;
+    seleccionDevolucion = false;
+    ocultarBotonDashboard();
+}
+
+function seleccionarTodos() {
+    document.getElementById('chkTransporte').checked = true;
+    document.getElementById('chkDespacho').checked = true;
+    document.getElementById('chkDevolucion').checked = true;
+    document.getElementById('selectionWarning').style.display = 'none';
+    document.getElementById('dependencyInfo').style.display = 'none';
+    mostrarToast('Todos los tipos de datos seleccionados');
+    seleccionTransporte = true;
+    seleccionDespacho = true;
+    seleccionDevolucion = true;
+}
+
+function actualizarTextoBotonExportar() {
+    const partes = [];
+    if (seleccionTransporte) partes.push('TRANSPORTE');
+    if (seleccionDespacho) partes.push('DESPACHO');
+    if (seleccionDevolucion) partes.push('DEVOLUCIONES');
+    
+    const btn = document.getElementById('btnExportarDinamicoGrande');
+    if (btn) {
+        if (partes.length === 0) {
+            btn.innerHTML = '⚠️ SELECCIONE AL MENOS UN ARCHIVO';
+        } else if (partes.length === 3) {
+            btn.innerHTML = '💾 DESCARGAR TRANSPORTE, DESPACHO Y DEVOLUCIONES';
+        } else if (partes.length === 2) {
+            btn.innerHTML = `💾 DESCARGAR ${partes[0]} Y ${partes[1]}`;
+        } else {
+            btn.innerHTML = `💾 DESCARGAR ${partes[0]}`;
+        }
+    }
+}
+
+function actualizarTextoLoading(seleccion) {
+    const loadingText = document.getElementById('loadingText');
+    const loadingSub = document.getElementById('loadingSub');
+    
+    const partes = [];
+    if (seleccion.transporte) partes.push('TRANSPORTE');
+    if (seleccion.despacho) partes.push('DESPACHO');
+    if (seleccion.devolucion) partes.push('DEVOLUCIONES');
+    
+    if (partes.length === 3) {
+        loadingText.innerHTML = 'Generando reportes de TRANSPORTE, DESPACHO y DEVOLUCIONES...';
+        loadingSub.innerHTML = 'Consultando base de datos SAP';
+    } else if (partes.length === 2) {
+        loadingText.innerHTML = `Generando reportes de ${partes[0]} y ${partes[1]}...`;
+        loadingSub.innerHTML = 'Consultando base de datos SAP';
+    } else if (partes.length === 1) {
+        loadingText.innerHTML = `Generando reporte de ${partes[0]}...`;
+        loadingSub.innerHTML = 'Consultando base de datos SAP';
+    } else {
+        loadingText.innerHTML = 'Cargando datos...';
+        loadingSub.innerHTML = 'Consultando base de datos SAP';
+    }
+}
+
+let menuVisible = false;
+
+function toggleDashboardMenu() {
+    const menu = document.getElementById('dashboardMenu');
+    if (menu) {
+        if (menuVisible) {
+            menu.classList.remove('show');
+            menuVisible = false;
+        } else {
+            menu.classList.add('show');
+            menuVisible = true;
+        }
+    }
+}
+
+// Cerrar menú si se hace clic fuera
+document.addEventListener('click', function(event) {
+    const btnContainer = document.getElementById('dashboardCornerBtn');
+    const menu = document.getElementById('dashboardMenu');
+    
+    if (btnContainer && menu && menuVisible) {
+        if (!btnContainer.contains(event.target)) {
+            menu.classList.remove('show');
+            menuVisible = false;
+        }
+    }
+});
+
+function ocultarBotonDashboard() {
+    const btn = document.getElementById('dashboardCornerBtn');
+    if (btn) btn.style.display = 'none';
+    const menu = document.getElementById('dashboardMenu');
+    if (menu) {
+        menu.classList.remove('show');
+        menuVisible = false;
+    }
+}
+
+function mostrarBotonDashboard(transportes, despachos, devoluciones) {
+    const btnContainer = document.getElementById('dashboardCornerBtn');
+    const linkTransporte = document.getElementById('dashboardLinkTransporte');
+    const linkDespacho = document.getElementById('dashboardLinkDespacho');
+    const linkDevolucion = document.getElementById('dashboardLinkDevolucion');
+    const linkAll = document.getElementById('dashboardLinkAll');
+    
+    if (!btnContainer) return;
+    
+    const exportados = [];
+    if (transportes) exportados.push('TRANSPORTE');
+    if (despachos) exportados.push('DESPACHO');
+    if (devoluciones) exportados.push('DEVOLUCIONES');
+    
+    if (exportados.length === 0) {
+        btnContainer.style.display = 'none';
+        return;
+    }
+    
+    // Ocultar todos primero
+    linkTransporte.style.display = 'none';
+    linkDespacho.style.display = 'none';
+    linkDevolucion.style.display = 'none';
+    linkAll.style.display = 'none';
+    
+    // Lógica según cantidad de tipos seleccionados
+    if (exportados.length === 1) {
+        // Solo mostrar el dashboard específico
+        const tipo = exportados[0];
+        if (tipo === 'TRANSPORTE') {
+            linkTransporte.href = DASHBOARD_LINKS.TRANSPORTE;
+            linkTransporte.style.display = 'block';
+        } else if (tipo === 'DESPACHO') {
+            linkDespacho.href = DASHBOARD_LINKS.DESPACHO;
+            linkDespacho.style.display = 'block';
+        } else if (tipo === 'DEVOLUCIONES') {
+            linkDevolucion.href = DASHBOARD_LINKS.DEVOLUCIONES;
+            linkDevolucion.style.display = 'block';
+        }
+    } else if (exportados.length === 2) {
+        // Mostrar solo los 2 específicos (sin COMPLETO)
+        if (transportes) {
+            linkTransporte.href = DASHBOARD_LINKS.TRANSPORTE;
+            linkTransporte.style.display = 'block';
+        }
+        if (despachos) {
+            linkDespacho.href = DASHBOARD_LINKS.DESPACHO;
+            linkDespacho.style.display = 'block';
+        }
+        if (devoluciones) {
+            linkDevolucion.href = DASHBOARD_LINKS.DEVOLUCIONES;
+            linkDevolucion.style.display = 'block';
+        }
+    } else if (exportados.length === 3) {
+        // Mostrar los 3 específicos + COMPLETO
+        linkTransporte.href = DASHBOARD_LINKS.TRANSPORTE;
+        linkTransporte.style.display = 'block';
+        linkDespacho.href = DASHBOARD_LINKS.DESPACHO;
+        linkDespacho.style.display = 'block';
+        linkDevolucion.href = DASHBOARD_LINKS.DEVOLUCIONES;
+        linkDevolucion.style.display = 'block';
+        linkAll.href = DASHBOARD_LINKS.TRANSPORTE;  // COMPLETO apunta a TRANSPORTE
+        linkAll.style.display = 'block';
+    }
+    
+    btnContainer.style.display = 'block';
+}
+
+function ejecutarReporte() {
+    const desde = document.getElementById('fechaDesde').value;
+    const hasta = document.getElementById('fechaHasta').value;
+    if (!desde || !hasta) {
+        alert('Por favor, seleccione el rango de fechas a consultar.');
+        return;
+    }
+    
+    seleccionTransporte = document.getElementById('chkTransporte').checked;
+    seleccionDespacho = document.getElementById('chkDespacho').checked;
+    seleccionDevolucion = document.getElementById('chkDevolucion').checked;
+    
+    if (seleccionDevolucion && !seleccionDespacho) {
+        document.getElementById('dependencyInfo').style.display = 'block';
+        document.getElementById('selectionWarning').style.display = 'none';
+        return;
+    }
+    document.getElementById('dependencyInfo').style.display = 'none';
+    
+    if (!seleccionTransporte && !seleccionDespacho && !seleccionDevolucion) {
+        document.getElementById('selectionWarning').style.display = 'block';
+        return;
+    }
+    document.getElementById('selectionWarning').style.display = 'none';
+    
+    actualizarTextoLoading({
+        transporte: seleccionTransporte,
+        despacho: seleccionDespacho,
+        devolucion: seleccionDevolucion
+    });
+    
+    showLoading();
+    
+    setTimeout(() => {
+        contadorOrdenTransporte = 100000;
+        contadorOrdenDespacho = 200000;
+        contadorOrdenDevolucion = 60000;
+        
+        datosTransporte = seleccionTransporte ? generarTransportes(desde, hasta) : [];
+        
+        if (seleccionDespacho) {
+            const transportesParaDespachos = seleccionTransporte ? datosTransporte : generarTransportes(desde, hasta);
+            datosDespachos = generarDespachos(transportesParaDespachos);
+        } else {
+            datosDespachos = [];
+        }
+        
+        if (seleccionDevolucion && datosDespachos.length > 0) {
+            datosDevoluciones = generarDevoluciones(datosDespachos, desde, hasta);
+        } else {
+            datosDevoluciones = [];
+        }
+        
+        renderizarTabs();
+        actualizarTextoBotonExportar();
+        hideLoading();
+        
+        const totalKg = datosTransporte.reduce((s, r) => s + r.CTD_TEORICA_DESDE, 0);
+        const totalDespachosKg = datosDespachos.reduce((s, r) => s + r.KILOS_DESPACHADOS_CLIENTE, 0);
+        const totalDevolucionesKg = datosDevoluciones.reduce((s, r) => s + r.KILOS_DEVUELTOS, 0);
+        
+        let infoText = '📊 ';
+        if (seleccionTransporte) infoText += `${datosTransporte.length.toLocaleString()} transportes | ${(totalKg/1000000).toFixed(3)} M kg recibidos | `;
+        if (seleccionDespacho) infoText += `${datosDespachos.length.toLocaleString()} despachos | ${(totalDespachosKg/1000000).toFixed(3)} M kg despachados | `;
+        if (seleccionDevolucion) infoText += `🔄 ${datosDevoluciones.length} devoluciones (${(totalDevolucionesKg/1000).toFixed(1)} kg devueltos - ${(totalDevolucionesKg/totalDespachosKg*100).toFixed(2)}%)`;
+        
+        document.getElementById('resultsInfo').innerHTML = infoText;
+        document.getElementById('resultsArea').style.display = 'flex';
+        document.getElementById('s-filter').classList.remove('active');
+        document.getElementById('s-results').classList.add('active');
+        
+        let mensajeExito = '✅ Reporte generado: ';
+        if (seleccionTransporte) mensajeExito += 'TRANSPORTE ';
+        if (seleccionDespacho) mensajeExito += 'DESPACHO ';
+        if (seleccionDevolucion) mensajeExito += 'DEVOLUCIONES';
+        mostrarToast(mensajeExito);
+        
+        ocultarBotonDashboard();
+    }, 2000);
+}
+
+function renderizarTabs() {
+    const tabTransporte = document.querySelector('.tab-btn[data-tab="tabTransporte"]');
+    const tabDespacho = document.querySelector('.tab-btn[data-tab="tabDespacho"]');
+    const tabDevolucion = document.querySelector('.tab-btn[data-tab="tabDevolucion"]');
+    
+    if (tabTransporte) tabTransporte.style.display = seleccionTransporte ? 'inline-block' : 'none';
+    if (tabDespacho) tabDespacho.style.display = seleccionDespacho ? 'inline-block' : 'none';
+    if (tabDevolucion) tabDevolucion.style.display = (seleccionDevolucion && datosDevoluciones.length > 0) ? 'inline-block' : 'none';
+    
+    document.getElementById('tabTransporteCount').innerHTML = seleccionTransporte ? `(${datosTransporte.length})` : '';
+    document.getElementById('tabDespachoCount').innerHTML = seleccionDespacho ? `(${datosDespachos.length})` : '';
+    document.getElementById('tabDevolucionCount').innerHTML = (seleccionDevolucion && datosDevoluciones.length > 0) ? `(${datosDevoluciones.length})` : '';
+    
+    if (seleccionTransporte) renderTablaEspecifica(datosTransporte, 'resultsTableTransporte');
+    if (seleccionDespacho) renderTablaEspecifica(datosDespachos, 'resultsTableDespacho');
+    if (seleccionDevolucion && datosDevoluciones.length > 0) renderTablaEspecifica(datosDevoluciones, 'resultsTableDevolucion');
+    
+    if (seleccionTransporte) {
+        cambiarTab('tabTransporte');
+    } else if (seleccionDespacho) {
+        cambiarTab('tabDespacho');
+    } else if (seleccionDevolucion && datosDevoluciones.length > 0) {
+        cambiarTab('tabDevolucion');
+    }
+}
+
+function renderTablaEspecifica(datos, tableId) {
+    const table = document.getElementById(tableId);
+    if (!datos || datos.length === 0) {
+        table.querySelector('thead').innerHTML = '';
+        table.querySelector('tbody').innerHTML = '<tr><td colspan="10" style="text-align:center;">No hay datos disponibles</td></tr>';
+        return;
+    }
+    const cols = Object.keys(datos[0]);
+    table.querySelector('thead').innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+    table.querySelector('tbody').innerHTML = datos.slice(0, 100).map(row => 
+        '<tr>' + cols.map(c => `<td>${row[c] !== undefined ? row[c] : ''}</td>`).join('') + '</tr>'
+    ).join('');
+}
+
+function cambiarTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    if (btn) btn.classList.add('active');
+}
+
+function exportarSegunSeleccion() {
+    const exportarTransporte = seleccionTransporte && datosTransporte.length > 0;
+    const exportarDespacho = seleccionDespacho && datosDespachos.length > 0;
+    const exportarDevolucion = seleccionDevolucion && datosDevoluciones.length > 0;
+    
+    if (!exportarTransporte && !exportarDespacho && !exportarDevolucion) {
+        alert('No hay datos seleccionados para exportar.');
+        return;
+    }
+    
+    const partes = [];
+    if (exportarTransporte) partes.push('TRANSPORTE');
+    if (exportarDespacho) partes.push('DESPACHO');
+    if (exportarDevolucion) partes.push('DEVOLUCIONES');
+    
+    let loadingMsg = 'Generando archivos de exportación...';
+    if (partes.length === 3) loadingMsg = 'Generando archivos de TRANSPORTE, DESPACHO y DEVOLUCIONES...';
+    else if (partes.length === 2) loadingMsg = `Generando archivos de ${partes[0]} y ${partes[1]}...`;
+    else if (partes.length === 1) loadingMsg = `Generando archivo de ${partes[0]}...`;
+    
+    showLoadingWithText(loadingMsg, 'Preparando datos para exportar');
+    
+    const fecha = new Date().toISOString().split('T')[0];
+    const hora = `${String(new Date().getHours()).padStart(2,'0')}${String(new Date().getMinutes()).padStart(2,'0')}`;
+    
+    let delays = [500];
+    let archivosGenerados = [];
+    
+    function descargarArchivo(datos, nombre, sheetName, delay) {
+        setTimeout(() => {
+            try {
+                const ws = XLSX.utils.json_to_sheet(datos);
+                ws['!cols'] = Array(Object.keys(datos[0] || {}).length).fill({wch: 18});
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                XLSX.writeFile(wb, nombre);
+                console.log(`✅ Exportado: ${nombre}`);
+                archivosGenerados.push(nombre);
+            } catch (error) { console.error(`Error exportando ${nombre}:`, error); }
+        }, delay);
+    }
+    
+    if (exportarTransporte) {
+        const nombre = `SAP_TRANSPORTE_${fecha}_${hora}.xlsx`;
+        const datos = datosTransporte.map(t => ({
+            FECHA: t.FECHA, ORDEN_TRANSPORTE: t.ORDEN_TRANSPORTE, ID_PRODUCTO: t.ID_PRODUCTO,
+            ID_BODEGA: t.ID_BODEGA, CTD_TEORICA_DESDE: t.CTD_TEORICA_DESDE, CTD_TEORICA_HACIA: t.CTD_TEORICA_HACIA,
+            RUMA_ALMACENAMIENTO: t.RUMA_ALMACENAMIENTO, UMA: t.UMA, LOTE: t.LOTE, ESTADO: t.ESTADO
+        }));
+        descargarArchivo(datos, nombre, "TRANSPORTE", delays[delays.length - 1]);
+        delays.push(delays[delays.length - 1] + 3000);
+    }
+    
+    if (exportarDespacho) {
+        const nombre = `SAP_DESPACHO_${fecha}_${hora}.xlsx`;
+        const datos = datosDespachos.map(d => ({
+            FECHA: d.FECHA, ORDEN_DESPACHO: d.ORDEN_DESPACHO, ID_CLIENTE: d.ID_CLIENTE,
+            ID_BODEGA: d.ID_BODEGA, ID_PRODUCTO: d.ID_PRODUCTO, RUMA_DESPACHO: d.RUMA_DESPACHO,
+            UMA: d.UMA, LOTE: d.LOTE, ID_PROVINCIA: d.ID_PROVINCIA, ID_DESTINO: d.ID_DESTINO,
+            KILOS_DESPACHADOS_CLIENTE: d.KILOS_DESPACHADOS_CLIENTE, ESTADO: d.ESTADO
+        }));
+        descargarArchivo(datos, nombre, "DESPACHOS", delays[delays.length - 1]);
+        delays.push(delays[delays.length - 1] + 3000);
+    }
+    
+    if (exportarDevolucion) {
+        const nombre = `SAP_DEVOLUCIONES_${fecha}_${hora}.xlsx`;
+        const datos = datosDevoluciones.map(dv => ({
+            FECHA_DEVOLUCION: dv.FECHA_DEVOLUCION,
+            ORDEN_DEVOLUCION: dv.ORDEN_DEVOLUCION,
+            ORDEN_DESPACHO_ORIGINAL: dv.ORDEN_DESPACHO_ORIGINAL,
+            ID_CLIENTE: dv.ID_CLIENTE,
+            ID_PRODUCTO: dv.ID_PRODUCTO,
+            KILOS_DEVUELTOS: dv.KILOS_DEVUELTOS,
+            ID_PROVINCIA: dv.ID_PROVINCIA,
+            ID_DESTINO: dv.ID_DESTINO,
+            ID_BODEGA: dv.ID_BODEGA,
+            RUMA_DESTINO: dv.RUMA_DESTINO,
+            MOTIVO_DEVOLUCION: dv.MOTIVO_DEVOLUCION
+        }));
+        descargarArchivo(datos, nombre, "DEVOLUCIONES", delays[delays.length - 1]);
+    }
+    
+    setTimeout(() => {
+        hideLoading();
+        let mensaje = `✅ Exportados: ${archivosGenerados.length} archivo(s)`;
+        if (exportarTransporte) mensaje += ' TRANSPORTE';
+        if (exportarDespacho) mensaje += ' DESPACHO';
+        if (exportarDevolucion) mensaje += ' DEVOLUCIONES';
+        mostrarToast(mensaje);
+        
+        mostrarBotonDashboard(exportarTransporte, exportarDespacho, exportarDevolucion);
+    }, delays[delays.length - 1] + 1000);
+}
+
+function resetApp() {
+    datosTransporte = []; datosDespachos = []; datosDevoluciones = [];
+    contadorOrdenTransporte = 100000; contadorOrdenDespacho = 200000; contadorOrdenDevolucion = 60000;
+    seleccionTransporte = false; seleccionDespacho = false; seleccionDevolucion = false;
+    document.getElementById('resultsArea').style.display = 'none';
+    document.getElementById('chkTransporte').checked = false;
+    document.getElementById('chkDespacho').checked = false;
+    document.getElementById('chkDevolucion').checked = false;
+    document.getElementById('selectionWarning').style.display = 'none';
+    document.getElementById('dependencyInfo').style.display = 'none';
+    ocultarBotonDashboard();
+    limpiarFiltros();
+    goToEasyAccess();
+}
+
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('visible');
+}
+
+function showLoadingWithText(text, sub) {
+    document.getElementById('loadingText').innerHTML = text;
+    document.getElementById('loadingSub').innerHTML = sub;
+    document.getElementById('loadingOverlay').classList.add('visible');
+}
+
+function hideLoading() { 
+    document.getElementById('loadingOverlay').classList.remove('visible');
+    document.getElementById('loadingText').innerHTML = 'Cargando datos...';
+    document.getElementById('loadingSub').innerHTML = 'Consultando base de datos SAP';
+}
+
+function mostrarToast(mensaje) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').innerHTML = mensaje;
+    toast.style.display = 'flex';
+    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+}
+
+function ejecutarComando() {
+    let comando = document.getElementById('cmdInp').value.trim();
+    const status = document.getElementById('cmdSt');
+    if (comando.toUpperCase() === 'LX02') {
+        status.className = 'cmd-status ok'; status.textContent = '✓';
+        setTimeout(() => goToFiltros(), 500);
+    } else {
+        status.className = 'cmd-status err'; status.textContent = '✕';
+        setTimeout(() => { status.className = 'cmd-status'; status.textContent = '▸'; }, 1500);
+    }
+}
+
+function seleccionarModulo(modulo) { document.getElementById('cmdInp').value = modulo; ejecutarComando(); }
+function togSugs() { }
+
+function actualizarReloj() {
+    const ahora = new Date();
+    const hora = ahora.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' });
+    const fecha = ahora.toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const texto = `${fecha} ${hora}`;
+    ['clock1', 'clock3', 'clockF', 'clockR'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = texto;
+    });
+}
+
+// Configurar evento de clic para el botón dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    const dashboardBtn = document.getElementById('dashboardMainBtn');
+    if (dashboardBtn) {
+        dashboardBtn.addEventListener('click', toggleDashboardMenu);
+    }
+});
+
+// EVENTOS
+document.getElementById('logon-row').addEventListener('dblclick', goToLogin);
+document.getElementById('lg-acceder').addEventListener('click', goToLogin);
+document.getElementById('btnLogin').addEventListener('click', doLogin);
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('s-login').classList.contains('active')) {
+        e.preventDefault(); doLogin();
+    }
+});
+
+actualizarReloj();
+setInterval(actualizarReloj, 10000);
+</script>
+</body>
+</html>
