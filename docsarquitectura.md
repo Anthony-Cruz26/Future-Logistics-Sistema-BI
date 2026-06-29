@@ -1,186 +1,136 @@
-# 🚛 Future Logistics S.A. - Sistema de Inteligencia de Negocios
+#  Arquitectura del Sistema
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-red)](https://www.microsoft.com/es-es/sql-server/)
-[![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-yellow)](https://powerbi.microsoft.com/)
-[![Selenium](https://img.shields.io/badge/Selenium-4.0-green)](https://www.selenium.dev/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+# Visión General
 
-# 📋 Descripción del Proyecto
+El sistema está compuesto por 4 capas principales que trabajan en conjunto para automatizar el flujo de datos desde la simulación hasta la visualización.
 
-Sistema automatizado de **Inteligencia de Negocios** para **Future Logistics S.A.**, empresa de logística y distribución de azúcar en Ecuador.
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CAPA DE VISUALIZACIÓN │
+│ (Power BI Dashboards) │
+├─────────────────────────────────────────────────────────────────────────┤
+│ CAPA DE ALMACENAMIENTO │
+│ (SQL Server - Modelo Estrella) │
+├─────────────────────────────────────────────────────────────────────────┤
+│ CAPA DE PROCESAMIENTO │
+│ (ETL - Python + Pandas) │
+├─────────────────────────────────────────────────────────────────────────┤
+│ CAPA DE EXTRACCIÓN │
+│ (Robot - Python + Selenium) │
+├─────────────────────────────────────────────────────────────────────────┤
+│ CAPA DE SIMULACIÓN │
+│ (HTML + JavaScript + XLSX) │
+└─────────────────────────────────────────────────────────────────────────┘
 
-El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistema de Almacenamiento y Transporte) hacia un **Data Warehouse en SQL Server** con modelo estrella, para posteriormente visualizar KPIs logísticos en **Power BI**.
+## Detalle de Componentes
 
-# 🎯 Objetivos del Proyecto
+### 1. Simulador SAP (`SIMULACIÓN_SAP.html`)
 
-1. **Gestionar** los indicadores de desempeño (KPIs) cruciales para el proceso operativo logístico
-2. **Construir** la arquitectura técnica del sistema ETL-BI
-3. **Automatizar** la extracción programada de datos desde SAP hacia SQL Server
-4. **Diseñar** dashboards interactivos en Power BI
+**Tecnologías**: HTML5, CSS3, JavaScript, XLSX (SheetJS)
 
----
+**Funcionalidad**:
+- Interfaz tipo SAP con 5 pantallas (LOGON, LOGIN, Easy Access, Filtros, Resultados)
+- Datos históricos (2024-2025)
+- Exportación a Excel de 3 tipos de datos:
+  - TRANSPORTE
+  - DESPACHO
+  - DEVOLUCIONES
 
-# Arquitectura del Sistema
-┌─────────────────────────────────────────────────────────────────────┐
-│ ARQUITECTURA DEL SISTEMA │
-├─────────────────────────────────────────────────────────────────────┤
-│ │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
-│ │ SIMULADOR │ │ ROBOT │ │ SQL SERVER │ │
-│ │ SAP │ ──▶│ (Python) │ ──▶│ Database │ │
-│ │ (HTML/JS) │ │ │ │ │ │
-│ └──────────────┘ └──────────────┘ └──────────────┘ │
-│ │ │ │ │
-│ ▼ ▼ ▼ │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
-│ │ Archivos │ │ ETLs │ │ POWER BI │ │
-│ │ Excel │ │ (Python) │ │ Dashboard │ │
-│ └──────────────┘ └──────────────┘ └──────────────┘ │
-│ │
-└─────────────────────────────────────────────────────────────────────┘
+- **Transporte**: 80-240 registros/día (según temporada)
+- **Despacho**: 1-3 despachos por transporte
+- **Devoluciones**: ~3% del volumen despachado
 
-**Componentes Principales**
+### 2. Robot Automatizador (`INICIAR.py`)
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| **Simulador SAP** | HTML, CSS, JavaScript, XLSX | Genera los datos históricos |
-| **Robot Automatizador** | Python + Selenium | Navega, extrae y descarga archivos |
-| **ETL** | Python + Pandas + PyODBC | Transforma y carga datos en SQL Server |
-| **Data Warehouse** | SQL Server (Modelo Estrella) | Almacena datos históricos |
-| **Dashboards** | Power BI | Visualización de KPIs |
+**Tecnologías**: Python, Selenium, WebDriver
 
-# 📊 Modelo de Datos
+**Funcionalidad**:
+- Navegación automática por el simulador SAP
+- Login automático (usuario: supervisor)
+- Ejecución de comandos SAP (Lx02)
+- Espera manual de 30 segundos para ajustar filtros
+- Descarga de archivos Excel
+- Ejecución de ETLs en secuencia
+- Apertura automática de dashboards Power BI
 
-Modelo Estrella
-┌─────────────────────┐
-│ DIM_FECHA │
-│ (Calendario) │
-└──────────┬──────────┘
-│
-┌──────────────────────┼──────────────────────┐
-│ │ │
-▼ ▼ ▼
-┌───────────────┐ ┌─────────────────┐ ┌───────────────┐
-│ DIM_BODEGA │ │ HECHOS_ │ │ DIM_CLIENTE │
-│ │ │ TRANSPORTE │ │ │
-└───────────────┘ └─────────────────┘ └───────────────┘
-│
-┌─────────────────────┼─────────────────────┐
-│ │ │
-▼ ▼ ▼
-┌───────────────┐ ┌─────────────────┐ ┌───────────────┐
-│ DIM_PRODUCTO │ │ HECHOS_ │ │ DIM_DESTINO │
-│ │ │ DESPACHOS │ │ │
-└───────────────┘ └─────────────────┘ └───────────────┘
-│
-▼
-┌─────────────────┐
-│ HECHOS_ │
-│ DEVOLUCIONES │
-└─────────────────┘
-Tablas Principales
+### 3. Procesos ETL
 
-| Tabla | PK | Propósito |
-|-------|-----|-----------|
-| `HECHOS_TRANSPORTE` | `ORDEN_TRANSPORTE` | Ingreso de azúcar a bodegas |
-| `HECHOS_DESPACHOS` | `ORDEN_DESPACHO` | Salida de azúcar a clientes |
-| `HECHOS_DEVOLUCIONES` | `ORDEN_DEVOLUCION` | Devoluciones de clientes |
+#### ETL TRANSPORTE
+- Lee archivos `SAP_TRANSPORTE_*.xlsx`
+- Inserta en `HECHOS_TRANSPORTE`
+- Valida bodegas y productos
 
-# 🚀 Instalación Rápida
+#### ETL DESPACHO
+- Lee archivos `SAP_DESPACHO_*.xlsx`
+- Inserta en `DIM_TRANSACCION` y `HECHOS_DESPACHOS`
+- Relaciona con dimensiones (cliente, destino, bodega)
 
-# 1. Clonar el repositorio
+#### ETL DEVOLUCION
+- Lee archivos `SAP_DEVOLUCIONES_*.xlsx`
+- Inserta en `HECHOS_DEVOLUCIONES`
+- Relaciona con despacho original via `ID_TRANSACCION`
 
-```bash
-git clone https://github.com/tu-usuario/Future Logistics-Sistema-BI.git
-cd Future Logistics-Sistema-BI
+### 4. Base de Datos (SQL Server)
+
+**Modelo Estrella**:
+
+| Tabla | Tipo | PK |
+|-------|------|-----|
+| `DIM_BODEGA` | Dimensión | ID_BODEGA |
+| `DIM_CLIENTE` | Dimensión | ID_CLIENTE |
+| `DIM_DESTINO` | Dimensión | ID_DESTINO |
+| `DIM_PRODUCTO` | Dimensión | ID_PRODUCTO |
+| `DIM_PROVINCIA` | Dimensión | ID_PROVINCIA |
+| `DIM_FECHA` | Dimensión | ID_FECHA |
+| `HECHOS_TRANSPORTE` | Hechos | ORDEN_TRANSPORTE |
+| `HECHOS_DESPACHOS` | Hechos | ORDEN_DESPACHO |
+| `HECHOS_DEVOLUCIONES` | Hechos | ORDEN_DEVOLUCION |
+| `AUDITORIA_ETL` | Auditoría | ID_AUDITORIA |
+
+### 5. Dashboards Power BI
+
+- **Transporte**: KPI de recepción de azúcar
+- **Despacho**: KPI de distribución a clientes
+- **Devoluciones**: KPI de calidad y servicio
+
+## Flujo de Datos
+
+1. Usuario ejecuta INICIAR.py
+2. Robot abre navegador → SIMULACIÓN_SAP.html
+3.Login automático → pantalla de filtros
+4. Espera 30s para ajustes manuales
+5. Ejecuta reporte → genera datos en memoria
+6. Exporta archivos Excel (3 archivos)
+7. Mueve archivos a REPORTES/
+8. Ejecuta ETL TRANSPORTE
+9. Ejecuta ETL DESPACHO
+10. Ejecuta ETL DEVOLUCION
+11. Abre dashboards Power BI
+
+## Diagrama ER
+
+```sql
+-- Relaciones principales
+DIM_BODEGA (ID_BODEGA) ←→ HECHOS_TRANSPORTE (ID_BODEGA)
+DIM_PRODUCTO (ID_PRODUCTO) ←→ HECHOS_TRANSPORTE (ID_PRODUCTO)
+
+DIM_CLIENTE (ID_CLIENTE) ←→ HECHOS_DESPACHOS (ID_CLIENTE)
+DIM_BODEGA (ID_BODEGA) ←→ HECHOS_DESPACHOS (ID_BODEGA)
+DIM_DESTINO (ID_DESTINO) ←→ HECHOS_DESPACHOS (ID_DESTINO)
+DIM_PRODUCTO (ID_PRODUCTO) ←→ HECHOS_DESPACHOS (ID_PRODUCTO)
+DIM_PROVINCIA (ID_PROVINCIA) ←→ HECHOS_DESPACHOS (ID_PROVINCIA)
+
+DIM_CLIENTE (ID_CLIENTE) ←→ HECHOS_DEVOLUCIONES (ID_CLIENTE)
+DIM_BODEGA (ID_BODEGA) ←→ HECHOS_DEVOLUCIONES (ID_BODEGA)
+DIM_DESTINO (ID_DESTINO) ←→ HECHOS_DEVOLUCIONES (ID_DESTINO)
+DIM_PROVINCIA (ID_PROVINCIA) ←→ HECHOS_DEVOLUCIONES (ID_PROVINCIA)
 ```
 
-# 2. Instalar dependencias
-pip install -r requirements.txt
 
-#3. Configurar base de datos
-Abrir SQL Server Management Studio
+Seguridad y Auditoría
+AUDITORIA_ETL: Registra cada ejecución de ETL
 
-Ejecutar database/FUTURE_LOGISTIC.sql
+Logs en consola: Seguimiento en tiempo real
 
-Verificar la creación de tablas
+Screenshots: Capturas en caso de error
 
-# 4. Ejecutar el sistema
-Ejecutar una sola vez
-python src/robot/INICIAR.py --once
-
-Ejecutar en bucle continuo (cada 2 horas)
-python src/robot/INICIAR.py
-
-# 📁 Estructura del Proyecto
-
-Future Logistics-Sistema-BI/
-│
-├── README.md                 # Este archivo
-├── LICENSE                   # Licencia MIT
-├── requirements.txt          # Dependencias Python
-├── .gitignore               # Archivos ignorados por Git
-│
-├── docs/                    # Documentación
-│   ├── arquitectura.md      # Detalle técnico de la arquitectura
-│   ├── guia_instalacion.md  # Guía paso a paso de instalación
-│   └── guia_usuario.md      # Manual de usuario
-│
-├── src/                     # Código fuente
-│   ├── simulador/           # Simulador SAP (HTML/JS)
-│   │   └── SIMULACIÓN_SAP.html
-│   │
-│   ├── robot/               # Robot automatizador
-│   │   └── INICIAR.py
-│   │
-│   └── etl/                 # Procesos ETL
-│       ├── PROCESO_ETL_TRANSPORTE.py
-│       ├── PROCESO_ETL_DESPACHO.py
-│       └── PROCESO_ETL_DEVOLUCION.py
-│
-├── database/                # Scripts de base de datos
-│   └── FUTURE_LOGISTIC.sql
-│
-└── reportes/                # Archivos generados
-    ├── REPORTES/            # Archivos Excel descargados
-    └── PROCESADOS/          # Archivos ya procesados por ETL
-
-# 📊 KPIs Implementados
-
-# Transporte
-
-📦 Kilos Recibidos: Total de kilos que ingresan a bodegas
-
-🎫 Total OT's: Número de órdenes de transporte
-
-⚖️ Kilos por OT: Promedio de kilos por orden
-
-🏭 Bodegas Activas: Número de bodegas con movimiento
-
-# Despachos
-
-🚛 Kilos Despachados: Total de kilos enviados a clientes
-
-👥 Clientes Atendidos: Número de clientes únicos
-
-📊 Promedio por Despacho: Kilos promedio por despacho
-
-🗺️ Provincias Atendidas: Cobertura geográfica
-
-# Devoluciones
-
-🔄 Kilos Devueltos: Total de kilos devueltos
-
-📈 % Devolución: Porcentaje sobre despachos
-
-📋 Motivos: Distribución de causas
-
-⏱️ Tiempo de Procesamiento: Días hasta procesar
-
-
-# 👥 Autores
-Autor	        Rol
-Anthony Cruz	Desarrollador Backend / ETL
-Yexica Angulo	Desarrollador Frontend / BI
-
+Validaciones: Verificación de integridad de datos
