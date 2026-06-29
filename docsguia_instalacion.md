@@ -1,186 +1,139 @@
-# 🚛 Future Logistics S.A. - Sistema de Inteligencia de Negocios
+# 🔧 Guía de Instalación
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-red)](https://www.microsoft.com/es-es/sql-server/)
-[![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-yellow)](https://powerbi.microsoft.com/)
-[![Selenium](https://img.shields.io/badge/Selenium-4.0-green)](https://www.selenium.dev/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+## Requisitos Previos
 
-# 📋 Descripción del Proyecto
+### Software Requerido
 
-Sistema automatizado de **Inteligencia de Negocios** para **Future Logistics S.A.**, empresa de logística y distribución de azúcar en Ecuador.
-
-El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistema de Almacenamiento y Transporte) hacia un **Data Warehouse en SQL Server** con modelo estrella, para posteriormente visualizar KPIs logísticos en **Power BI**.
-
-# 🎯 Objetivos del Proyecto
-
-1. **Gestionar** los indicadores de desempeño (KPIs) cruciales para el proceso operativo logístico
-2. **Construir** la arquitectura técnica del sistema ETL-BI
-3. **Automatizar** la extracción programada de datos desde SAP hacia SQL Server
-4. **Diseñar** dashboards interactivos en Power BI
+| Software | Versión | Descarga |
+|----------|---------|----------|
+| Python | 3.8+ | [python.org](https://www.python.org/) |
+| SQL Server | 2017+ | [microsoft.com](https://www.microsoft.com/sql-server) |
+| SQL Server Management Studio | 18+ | [microsoft.com](https://docs.microsoft.com/ssms) |
+| Power BI Desktop | Última | [microsoft.com](https://powerbi.microsoft.com) |
+| Chrome Browser | Última | [google.com/chrome](https://www.google.com/chrome) |
+| Git | Última | [git-scm.com](https://git-scm.com/) |
 
 ---
 
-# Arquitectura del Sistema
-┌─────────────────────────────────────────────────────────────────────┐
-│ ARQUITECTURA DEL SISTEMA │
-├─────────────────────────────────────────────────────────────────────┤
-│ │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
-│ │ SIMULADOR │ │ ROBOT │ │ SQL SERVER │ │
-│ │ SAP │ ──▶│ (Python) │ ──▶│ Database │ │
-│ │ (HTML/JS) │ │ │ │ │ │
-│ └──────────────┘ └──────────────┘ └──────────────┘ │
-│ │ │ │ │
-│ ▼ ▼ ▼ │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
-│ │ Archivos │ │ ETLs │ │ POWER BI │ │
-│ │ Excel │ │ (Python) │ │ Dashboard │ │
-│ └──────────────┘ └──────────────┘ └──────────────┘ │
-│ │
-└─────────────────────────────────────────────────────────────────────┘
-
-**Componentes Principales**
-
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| **Simulador SAP** | HTML, CSS, JavaScript, XLSX | Genera los datos históricos |
-| **Robot Automatizador** | Python + Selenium | Navega, extrae y descarga archivos |
-| **ETL** | Python + Pandas + PyODBC | Transforma y carga datos en SQL Server |
-| **Data Warehouse** | SQL Server (Modelo Estrella) | Almacena datos históricos |
-| **Dashboards** | Power BI | Visualización de KPIs |
-
-# 📊 Modelo de Datos
-
-Modelo Estrella
-┌─────────────────────┐
-│ DIM_FECHA │
-│ (Calendario) │
-└──────────┬──────────┘
-│
-┌──────────────────────┼──────────────────────┐
-│ │ │
-▼ ▼ ▼
-┌───────────────┐ ┌─────────────────┐ ┌───────────────┐
-│ DIM_BODEGA │ │ HECHOS_ │ │ DIM_CLIENTE │
-│ │ │ TRANSPORTE │ │ │
-└───────────────┘ └─────────────────┘ └───────────────┘
-│
-┌─────────────────────┼─────────────────────┐
-│ │ │
-▼ ▼ ▼
-┌───────────────┐ ┌─────────────────┐ ┌───────────────┐
-│ DIM_PRODUCTO │ │ HECHOS_ │ │ DIM_DESTINO │
-│ │ │ DESPACHOS │ │ │
-└───────────────┘ └─────────────────┘ └───────────────┘
-│
-▼
-┌─────────────────┐
-│ HECHOS_ │
-│ DEVOLUCIONES │
-└─────────────────┘
-Tablas Principales
-
-| Tabla | PK | Propósito |
-|-------|-----|-----------|
-| `HECHOS_TRANSPORTE` | `ORDEN_TRANSPORTE` | Ingreso de azúcar a bodegas |
-| `HECHOS_DESPACHOS` | `ORDEN_DESPACHO` | Salida de azúcar a clientes |
-| `HECHOS_DEVOLUCIONES` | `ORDEN_DEVOLUCION` | Devoluciones de clientes |
-
-# 🚀 Instalación Rápida
-
-# 1. Clonar el repositorio
+## Paso 1: Clonar el Repositorio
 
 ```bash
 git clone https://github.com/tu-usuario/Future Logistics-Sistema-BI.git
 cd Future Logistics-Sistema-BI
 ```
 
-# 2. Instalar dependencias
+## Paso 2: Crear Entorno Virtual
+
+Windows
+python -m venv venv
+venv\Scripts\activate
+
+Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+
+## Paso 3: Instalar Dependencias
 pip install -r requirements.txt
 
-#3. Configurar base de datos
-Abrir SQL Server Management Studio
+## Paso 4: Configurar Base de Datos
+4.1 Abrir SQL Server Management Studio
+4.2 Ejecutar el script de creación
 
-Ejecutar database/FUTURE_LOGISTIC.sql
+-- Abrir el archivo database/FUTURE_LOGISTIC.sql
+-- Ejecutarlo completamente (F5)
 
-Verificar la creación de tablas
+4.3 Verificar la creación
+USE FUTURE_LOGISTIC;
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
 
-# 4. Ejecutar el sistema
-Ejecutar una sola vez
+## Paso 5: Configurar Rutas
+5.1 Verificar rutas en INICIAR.py
+Abrir src/robot/INICIAR.py y verificar:
+
+class Config:
+    RUTA_HTML = "C:/Users/tu_usuario/.../SIMULACIÓN_SAP.html"
+    CARPETA_REPORTES = "C:/Users/tu_usuario/.../REPORTES"
+    RUTA_ETL_TRANSPORTE = "C:/Users/tu_usuario/.../PROCESO_ETL_TRANSPORTE.py"
+    RUTA_ETL_DESPACHO = "C:/Users/tu_usuario/.../PROCESO_ETL_DESPACHO.py"
+    RUTA_ETL_DEVOLUCION = "C:/Users/tu_usuario/.../PROCESO_ETL_DEVOLUCION.py"
+
+5.2 Ajustar según tu sistema
+Reemplaza tu_usuario con tu nombre de usuario real.
+
+## Paso 6: Configurar Power BI
+6.1 Abrir Power BI Desktop
+6.2 Conectar a SQL Server
+Obtener datos → SQL Server
+
+Servidor: localhost\SQLEXPRESS
+
+Base de datos: FUTURE_LOGISTIC
+
+Seleccionar tablas:
+
+DIM_BODEGA
+
+DIM_CLIENTE
+
+DIM_DESTINO
+
+DIM_PRODUCTO
+
+DIM_PROVINCIA
+
+HECHOS_TRANSPORTE
+
+HECHOS_DESPACHOS
+
+HECHOS_DEVOLUCIONES
+
+6.3 Crear Relaciones
+Tabla 1	Tabla 2	Relación
+DIM_BODEGA.ID_BODEGA	HECHOS_TRANSPORTE.ID_BODEGA	1:N
+DIM_PRODUCTO.ID_PRODUCTO	HECHOS_TRANSPORTE.ID_PRODUCTO	1:N
+DIM_CLIENTE.ID_CLIENTE	HECHOS_DESPACHOS.ID_CLIENTE	1:N
+DIM_DESTINO.ID_DESTINO	HECHOS_DESPACHOS.ID_DESTINO	1:N
+DIM_PROVINCIA.ID_PROVINCIA	HECHOS_DESPACHOS.ID_PROVINCIA	1:N
+
+## Paso 7: Ejecutar el Sistema
+7.1 Ejecución única
+bash
 python src/robot/INICIAR.py --once
-
-Ejecutar en bucle continuo (cada 2 horas)
+7.2 Ejecución en bucle
+bash
 python src/robot/INICIAR.py
 
-# 📁 Estructura del Proyecto
+## Paso 8: Verificar Resultados
+8.1 Verificar archivos descargados
+bash
+ls src/reportes/REPORTES/
+8.2 Verificar datos en SQL Server
+sql
+USE FUTURE_LOGISTIC;
 
-Future Logistics-Sistema-BI/
-│
-├── README.md                 # Este archivo
-├── LICENSE                   # Licencia MIT
-├── requirements.txt          # Dependencias Python
-├── .gitignore               # Archivos ignorados por Git
-│
-├── docs/                    # Documentación
-│   ├── arquitectura.md      # Detalle técnico de la arquitectura
-│   ├── guia_instalacion.md  # Guía paso a paso de instalación
-│   └── guia_usuario.md      # Manual de usuario
-│
-├── src/                     # Código fuente
-│   ├── simulador/           # Simulador SAP (HTML/JS)
-│   │   └── SIMULACIÓN_SAP.html
-│   │
-│   ├── robot/               # Robot automatizador
-│   │   └── INICIAR.py
-│   │
-│   └── etl/                 # Procesos ETL
-│       ├── PROCESO_ETL_TRANSPORTE.py
-│       ├── PROCESO_ETL_DESPACHO.py
-│       └── PROCESO_ETL_DEVOLUCION.py
-│
-├── database/                # Scripts de base de datos
-│   └── FUTURE_LOGISTIC.sql
-│
-└── reportes/                # Archivos generados
-    ├── REPORTES/            # Archivos Excel descargados
-    └── PROCESADOS/          # Archivos ya procesados por ETL
+-- Contar registros
+SELECT 'TRANSPORTE' AS Tabla, COUNT(*) FROM HECHOS_TRANSPORTE
+UNION ALL
+SELECT 'DESPACHO', COUNT(*) FROM HECHOS_DESPACHOS
+UNION ALL
+SELECT 'DEVOLUCION', COUNT(*) FROM HECHOS_DEVOLUCIONES;
 
-# 📊 KPIs Implementados
+-- Ver auditoría
+SELECT * FROM AUDITORIA_ETL ORDER BY ID_AUDITORIA DESC;
+Solución de Problemas
+Error: "No se encuentra el módulo pyodbc"
+bash
+pip install pyodbc
+Error: "ChromeDriver no encontrado"
+bash
+pip install --upgrade webdriver-manager
+Error: "No se puede conectar a SQL Server"
+Verificar que SQL Server esté corriendo
 
-# Transporte
+Verificar que el nombre del servidor sea correcto
 
-📦 Kilos Recibidos: Total de kilos que ingresan a bodegas
+Verificar autenticación de Windows
 
-🎫 Total OT's: Número de órdenes de transporte
-
-⚖️ Kilos por OT: Promedio de kilos por orden
-
-🏭 Bodegas Activas: Número de bodegas con movimiento
-
-# Despachos
-
-🚛 Kilos Despachados: Total de kilos enviados a clientes
-
-👥 Clientes Atendidos: Número de clientes únicos
-
-📊 Promedio por Despacho: Kilos promedio por despacho
-
-🗺️ Provincias Atendidas: Cobertura geográfica
-
-# Devoluciones
-
-🔄 Kilos Devueltos: Total de kilos devueltos
-
-📈 % Devolución: Porcentaje sobre despachos
-
-📋 Motivos: Distribución de causas
-
-⏱️ Tiempo de Procesamiento: Días hasta procesar
-
-
-# 👥 Autores
-Autor	        Rol
-Anthony Cruz	Desarrollador Backend / ETL
-Yexica Angulo	Desarrollador Frontend / BI
+Error: "HTML no encontrado"
+Verificar que la ruta en INICIAR.py apunte correctamente al archivo HTML
 
