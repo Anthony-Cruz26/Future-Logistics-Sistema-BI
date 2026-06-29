@@ -79,8 +79,6 @@ Modelo Estrella
 │ HECHOS_ │
 │ DEVOLUCIONES │
 └─────────────────┘
-
-
 Tablas Principales
 
 | Tabla | PK | Propósito |
@@ -88,8 +86,6 @@ Tablas Principales
 | `HECHOS_TRANSPORTE` | `ORDEN_TRANSPORTE` | Ingreso de azúcar a bodegas |
 | `HECHOS_DESPACHOS` | `ORDEN_DESPACHO` | Salida de azúcar a clientes |
 | `HECHOS_DEVOLUCIONES` | `ORDEN_DEVOLUCION` | Devoluciones de clientes |
-
----
 
 # 🚀 Instalación Rápida
 
