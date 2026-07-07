@@ -403,7 +403,7 @@
     <div class="sap-statusbar"><span id="statusBar">✅ Sistema listo</span><span id="clockR"></span></div>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay"><div class="loading-content"><div class="spinner"></div><p id="loadingText">Cargando datos...</p><p id="loadingSub">Consultando base de datos SAP</p></div></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-content"><div class="spinner"></div><p id="loadingText">Cargando datos...</p><p id="loadingSub">Consultando SAP</p></div></div>
 <div class="toast" id="toast"><span>✅</span><span id="toastMsg"></span></div>
 
 <script>
@@ -455,7 +455,14 @@ const PRODUCTOS = [
     { codigo: '10000352', descripcion: 'AZUCAR BLANCA MSM FARDO 1 KG X 15 KG', pesoPaquete: 1, uma: 'F15', paquetesPorFardo: 60, pesoFardo: 60 }
 ];
 
-const MOTIVOS_DEVOLUCION = ['DAÑADO EMPAQUE'];
+const MOTIVOS_DEVOLUCION = [
+    'FALLA EN EMPAQUE',
+    'CANCELACIÓN DE PEDIDO',
+    'ERROR EN PRODUCTO DESPACHADO',
+    'DESPACHO DUPLICADO',
+    'ERROR EN CANTIDAD DESPACHADA'
+];
+
 const RUMAS_POR_BODEGA = {
     1: ['02-01-01', '02-01-02', '02-01-03', '02-01-04', '02-01-05'],
     2: ['02-02-01', '02-02-02', '02-02-03'],
@@ -479,9 +486,9 @@ let seleccionDevolucion = false;
 
 // Enlaces de dashboard
 const DASHBOARD_LINKS = {
-    'TRANSPORTE': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/5963a551ab45ea61da82?experience=power-bi',
-    'DESPACHO': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/624939736adb5216190c?experience=power-bi',
-    'DEVOLUCIONES': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/f51c9d6120667dded1d3?experience=power-bi'
+    'TRANSPORTE': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/be71aa82-25c5-4aca-ac7d-05a5763d34f7/5963a551ab45ea61da82?experience=power-bi',
+    'DESPACHO': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/be71aa82-25c5-4aca-ac7d-05a5763d34f7/624939736adb5216190c?experience=power-bi',
+    'DEVOLUCIONES': 'https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/be71aa82-25c5-4aca-ac7d-05a5763d34f7/f51c9d6120667dded1d3?experience=power-bi'
 };
 
 // ============================================================
@@ -698,7 +705,7 @@ function generarDevoluciones(despachos, desde, hasta) {
                     ID_DESTINO: despacho.ID_DESTINO,
                     ID_BODEGA: idBodegaDestino,
                     RUMA_DESTINO: rumaDestino,
-                    MOTIVO_DEVOLUCION: 'DAÑADO EMPAQUE'
+                    MOTIVO_DEVOLUCION: MOTIVOS_DEVOLUCION[Math.floor(Math.random() * MOTIVOS_DEVOLUCION.length)]
                 });
             }
             
@@ -825,16 +832,16 @@ function actualizarTextoLoading(seleccion) {
     
     if (partes.length === 3) {
         loadingText.innerHTML = 'Generando reportes de TRANSPORTE, DESPACHO y DEVOLUCIONES...';
-        loadingSub.innerHTML = 'Consultando base de datos SAP';
+        loadingSub.innerHTML = 'Consultando datos en SAP';
     } else if (partes.length === 2) {
         loadingText.innerHTML = `Generando reportes de ${partes[0]} y ${partes[1]}...`;
-        loadingSub.innerHTML = 'Consultando base de datos SAP';
+        loadingSub.innerHTML = 'Consultando SAP';
     } else if (partes.length === 1) {
         loadingText.innerHTML = `Generando reporte de ${partes[0]}...`;
-        loadingSub.innerHTML = 'Consultando base de datos SAP';
+        loadingSub.innerHTML = 'Consultando SAP';
     } else {
         loadingText.innerHTML = 'Cargando datos...';
-        loadingSub.innerHTML = 'Consultando base de datos SAP';
+        loadingSub.innerHTML = 'Consultando SAP';
     }
 }
 
@@ -1196,7 +1203,7 @@ function showLoadingWithText(text, sub) {
 function hideLoading() { 
     document.getElementById('loadingOverlay').classList.remove('visible');
     document.getElementById('loadingText').innerHTML = 'Cargando datos...';
-    document.getElementById('loadingSub').innerHTML = 'Consultando base de datos SAP';
+    document.getElementById('loadingSub').innerHTML = 'Consultando SAP';
 }
 
 function mostrarToast(mensaje) {

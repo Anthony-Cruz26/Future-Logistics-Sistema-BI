@@ -153,7 +153,7 @@ def mostrar_mensaje_error_etl(nombre_etl, error_detalle=""):
     except:
         pass
 
-
+    
 def mostrar_mensaje_error_general(error=""):
     try:
         mensaje = "ERROR EN EL PROCESO GENERAL\n\n"
@@ -601,9 +601,9 @@ def abrir_dashboards():
     """Abre los dashboards de Power BI en el navegador predeterminado"""
     try:
         dashboards = [
-            ("TRANSPORTE", "https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/5963a551ab45ea61da82?experience=power-bi"),
-            ("DESPACHO", "https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/624939736adb5216190c?experience=power-bi"),
-            ("DEVOLUCIONES", "https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/d03ad8a4-8204-4e0f-9e48-012cfd5b43e7/f51c9d6120667dded1d3?experience=power-bi")
+            ("TRANSPORTE", "https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/be71aa82-25c5-4aca-ac7d-05a5763d34f7/5963a551ab45ea61da82?experience=power-bi"),
+            ("DESPACHO", "https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/be71aa82-25c5-4aca-ac7d-05a5763d34f7/624939736adb5216190c?experience=power-bi"),
+            ("DEVOLUCIONES", "https://app.powerbi.com/groups/3e8074f0-cf7e-4e30-8de4-ecb856988343/reports/be71aa82-25c5-4aca-ac7d-05a5763d34f7/f51c9d6120667dded1d3?experience=power-bi")
         ]
         
         guardar_log('DASHBOARD', 'Abriendo dashboards de Power BI...')
