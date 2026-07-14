@@ -52,7 +52,7 @@ El sistema simula, extrae, transforma y carga datos desde un sistema SAT (Sistem
 
 # 📊 Modelo de Datos
 
-Modelo Estrella
+Modelo Copo de nieve
 ┌─────────────────────┐
 │ DIM_FECHA │
 │ (Calendario) │
