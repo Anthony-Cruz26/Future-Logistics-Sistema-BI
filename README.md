@@ -180,7 +180,7 @@ Future Logistics-Sistema-BI/
 
 
 # 👥 Autores
-Autor	        Rol
-Anthony Cruz	Desarrollador Backend / ETL
-Yexica Angulo	Desarrollador Frontend / BI
+Autor	        
+Anthony Cruz
+Yexica Angulo	
 
