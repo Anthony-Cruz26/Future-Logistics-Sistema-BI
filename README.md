@@ -182,5 +182,6 @@ Future Logistics-Sistema-BI/
 # 👥 Autores
 Autor	        
 Anthony Cruz
+
 Yexica Angulo	
 
